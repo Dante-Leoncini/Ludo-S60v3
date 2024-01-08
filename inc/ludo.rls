@@ -1,0 +1,32 @@
+/*
+ * ==============================================================================
+ *  Name        : ludo.rls
+ *  Part of     : OpenGLEx / Ludo
+ *
+ *  Copyright (c) 2004-2006 Nokia Corporation.
+ *  This material, including documentation and any related
+ *  computer programs, is protected by copyright controlled by
+ *  Nokia Corporation.
+ * ==============================================================================
+ */
+
+// LOCALISATION STRINGS
+
+rls_string STRING_r_app_caption_string       "Ludo"
+rls_string STRING_r_app_short_caption_string "Ludo"
+
+rls_string STRING_r_ludo_exit         "Exit"
+
+rls_string STRING_r_ludo_lighting     "Lights"
+rls_string STRING_r_ludo_lights_on    "Turn lights on"
+rls_string STRING_r_ludo_lights_off   "Turn lights off"
+rls_string STRING_r_ludo_lamp_on      "Turn lamp on"
+rls_string STRING_r_ludo_lamp_off     "Turn lamp off"
+rls_string STRING_r_ludo_spot_on      "Turn spot on"
+rls_string STRING_r_ludo_spot_off     "Turn spot off"
+
+rls_string STRING_r_ludo_models       "Models"
+rls_string STRING_r_ludo_model_duck   "Duck"
+rls_string STRING_r_ludo_model_head   "Head"
+
+// End of File
