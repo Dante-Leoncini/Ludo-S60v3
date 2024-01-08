@@ -1,0 +1,202 @@
+/*
+ * ==============================================================================
+ *  Name        : Ludo.rss
+ *  Part of     : OpenGLEx / Ludo
+ *
+ *  Copyright (c) 2004-2006 Nokia Corporation.
+ *  This material, including documentation and any related
+ *  computer programs, is protected by copyright controlled by
+ *  Nokia Corporation.
+ * ==============================================================================
+ */
+
+//  RESOURCE IDENTIFIER
+NAME    AWIZ // 4 letter ID
+
+//  INCLUDES
+#include <eikon.rh>
+#include "ludo.hrh"
+#include "ludo.rls"
+#include <avkon.rsg>
+#include <avkon.rh>
+#include <avkon.mbg>
+#include <appinfo.rh>
+
+//  RESOURCE DEFINITIONS
+RESOURCE RSS_SIGNATURE { }
+RESOURCE TBUF { buf="Ludo"; }
+RESOURCE EIK_APP_INFO
+	{
+    menubar = r_ludo_menubar;
+    cba = R_AVKON_SOFTKEYS_OPTIONS_BACK;
+	}
+
+//----------------------------------------------------
+//
+//    r_ludo_menubar
+//
+//----------------------------------------------------
+//
+RESOURCE MENU_BAR r_ludo_menubar
+{
+    titles =
+        {
+            MENU_TITLE
+            {
+                menu_pane = r_ludo_exit;
+            },
+            MENU_TITLE
+            {
+                menu_pane = r_ludo_menu;
+            }
+        };
+}
+
+//----------------------------------------------------
+//
+//    r_ludo_exit
+//
+//----------------------------------------------------
+//
+RESOURCE MENU_PANE r_ludo_exit
+{
+    items =
+        {
+            MENU_ITEM
+            {
+                command = EAknCmdExit;
+                txt = STRING_r_ludo_exit;
+            }
+        };
+}
+
+//----------------------------------------------------
+//
+//    r_ludo_menu
+//
+//----------------------------------------------------
+//
+RESOURCE MENU_PANE r_ludo_menu
+{
+    items =
+        {
+            MENU_ITEM
+            {
+                command = ELudoLighting;
+                cascade = r_ludo_lighting_menu;
+                txt = STRING_r_ludo_lighting;
+            },
+            MENU_ITEM
+            {
+                command = ELudoModels;
+                cascade = r_ludo_model_menu;
+                txt = STRING_r_ludo_models;
+            }
+        };
+}
+
+//----------------------------------------------------
+//
+//    r_ludo_lighting_menu
+//
+//----------------------------------------------------
+//
+RESOURCE MENU_PANE r_ludo_lighting_menu
+{
+    items =
+        {
+            MENU_ITEM
+            {
+                command = ELudoLights;
+            },
+            MENU_ITEM
+            {
+                command = ELudoLamp;
+            },
+            MENU_ITEM
+            {
+                command = ELudoSpot;
+            }
+        };
+}
+
+//----------------------------------------------------
+//
+//    r_ludo_model_menu
+//
+//----------------------------------------------------
+//
+RESOURCE MENU_PANE r_ludo_model_menu
+{
+    items =
+        {
+            MENU_ITEM
+            {
+                command = ELudoDuck;
+                txt = STRING_r_ludo_model_duck;
+            },
+            MENU_ITEM
+            {
+                command = ELudoHead;
+                txt = STRING_r_ludo_model_head;
+            }
+        };
+}
+
+//----------------------------------------------------
+//
+//    resources for the menu item texts
+//
+//----------------------------------------------------
+//
+RESOURCE TBUF256 r_lights_on
+{
+    buf = STRING_r_ludo_lights_on;
+}
+
+RESOURCE TBUF256 r_lights_off
+{
+    buf = STRING_r_ludo_lights_off;
+}
+
+
+RESOURCE TBUF256 r_lamp_on
+{
+    buf = STRING_r_ludo_lamp_on;
+}
+
+RESOURCE TBUF256 r_lamp_off
+{
+    buf = STRING_r_ludo_lamp_off;
+}
+
+
+RESOURCE TBUF256 r_spot_on
+{
+    buf = STRING_r_ludo_spot_on;
+}
+
+RESOURCE TBUF256 r_spot_off
+{
+    buf = STRING_r_ludo_spot_off;
+}
+
+//----------------------------------------------------
+//
+//    r_ludo_localisable_app_info
+//
+//----------------------------------------------------
+//
+RESOURCE LOCALISABLE_APP_INFO r_ludo_localisable_app_info
+    {
+    short_caption = STRING_r_app_short_caption_string;
+    caption_and_icon =
+    CAPTION_AND_ICON_INFO
+        {
+        caption         = STRING_r_app_caption_string;
+        number_of_icons = 1;
+        icon_file       = "\\resource\\apps\\ludo_icon.mif";
+        };
+    }
+
+// End of File
