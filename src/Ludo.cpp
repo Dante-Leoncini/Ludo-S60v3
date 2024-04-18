@@ -115,17 +115,17 @@ typedef enum { CantidadJugadores, ModoDado, SeleccionDado, DadoLanzado, Seleccio
 EstadoLudo EstadoJuego = CantidadJugadores;
 
 //parametros del juego
-bool DadoManual = true;
-int Dado = 6;
-int Tiros = 1;
-int NumJugadores = 4;
-int TurnoDe = static_cast<ColoresEquipo>(0);
-int FichaSeleccionada = 0;
+TBool DadoManual = true;
+TInt Dado = 6;
+TInt Tiros = 1;
+TInt NumJugadores = 4;
+TInt TurnoDe = static_cast<ColoresEquipo>(0);
+TInt FichaSeleccionada = 0;
 
 //Crea un array de objetos
 Ficha Fichas[16];
-bool temblando = true;
-int temblandoFrame = 0;
+TBool temblando = true;
+TInt temblandoFrame = 0;
 static const int temblandoAnim[10][3] = {
     {-6, -4, -1},
     {4, 0, 3},
@@ -314,6 +314,7 @@ void CLudo::AppInit( void ){
     glHint( GL_PERSPECTIVE_CORRECTION_HINT, GL_FASTEST );
 
     // Initialize menu state variables, Symbian menu stuff.
+    iWidescreenEnabled = ETrue;          // Lighting is enabled
     iLightingEnabled = ETrue;          // Lighting is enabled
     iLampEnabled     = ETrue;          // Lamp is enabled
     iSpotEnabled     = EFalse;         // Spot is disabled
@@ -1048,6 +1049,29 @@ void CLudo::Choque( int ficha, int casillero){
 // Reacts to the dynamic screen size change during execution of this program.
 // -----------------------------------------------------------------------------
 //
+void CLudo::SetScreenSize( TUint aWidth, TUint aHeight, TBool widescreen = false ){
+    iScreenWidth  = aWidth;
+    iScreenHeight = aHeight;
+    
+    // Notify the texture manager of screen size change
+    iTextureManager->SetScreenSize( aWidth, aHeight );
+
+    // Reinitialize viewport and projection.
+    glViewport( 0, 0, iScreenWidth, iScreenHeight );
+
+    // Recalculate the view frustrum
+    glMatrixMode( GL_PROJECTION );
+    glLoadIdentity();
+    GLfloat aspectRatio = (GLfloat)(iScreenWidth) / (GLfloat)(iScreenHeight);
+    if (widescreen && iScreenWidth > iScreenHeight){
+        aspectRatio = (GLfloat)(16) / (GLfloat)(9);    	
+    };
+    glFrustumf( FRUSTUM_LEFT * aspectRatio, FRUSTUM_RIGHT * aspectRatio,
+                FRUSTUM_BOTTOM, FRUSTUM_TOP,
+                FRUSTUM_NEAR, FRUSTUM_FAR );
+    glMatrixMode( GL_MODELVIEW );
+}
+
 void CLudo::SetScreenSize( TUint aWidth, TUint aHeight ){
     iScreenWidth  = aWidth;
     iScreenHeight = aHeight;

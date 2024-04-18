@@ -48,6 +48,11 @@ class CLudoContainer : public CCoeControl, MCoeControlObserver
          *@param aInstance Pointer to this instance of CLudoContainer.
          */
         static int DrawCallBack( TAny* aInstance );
+        
+        /**
+         * Para cambiar al modo Widescreen
+         */
+        void SetWidescreen();
 
     private: // Functions from base classes
 
