@@ -91,11 +91,14 @@ RESOURCE MENU_PANE r_ludo_menu
                 command = ELudoModels;
                 cascade = r_ludo_model_menu;
                 txt = STRING_r_ludo_models;
+<<<<<<< HEAD
             },
             MENU_ITEM
             {
                 command = ELudoWidescreen;
                 txt = STRING_r_ludo_spot_off;
+=======
+>>>>>>> 140529374a0029ac6abc67d28e76e28809dcd80c
             }
         };
 }
@@ -164,6 +167,7 @@ RESOURCE TBUF256 r_lights_off
     buf = STRING_r_ludo_lights_off;
 }
 
+<<<<<<< HEAD
 RESOURCE TBUF256 r_widescreen_on
 {
     buf = STRING_r_ludo_widescreen_on;
@@ -174,6 +178,8 @@ RESOURCE TBUF256 r_widescreen_off
     buf = STRING_r_ludo_widescreen_off;
 }
 
+=======
+>>>>>>> 140529374a0029ac6abc67d28e76e28809dcd80c
 
 RESOURCE TBUF256 r_lamp_on
 {
