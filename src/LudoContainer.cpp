@@ -214,17 +214,32 @@ CLudoContainer::~CLudoContainer()
 // Called by framework when the view size is changed
 // ---------------------------------------------------------
 //
-void CLudoContainer::SizeChanged()
-    {
-    if( iOpenGlInitialized && iLudo )
-        {
+void CLudoContainer::SizeChanged(){
+    if( iOpenGlInitialized && iLudo ){
         TSize size;
         size = this->Size();
 
         iLudo->SetScreenSize( size.iWidth, size.iHeight );
-        }
     }
+}
 
+//cambia entre WideScreen a pantalla normal
+TBool widescreen = false;
+void CLudoContainer::SetWidescreen(){
+    if( iOpenGlInitialized && iLudo ){
+        TSize size;
+        size = this->Size();
+        if (widescreen){
+            widescreen = false;
+            iLudo->iWidescreenEnabled = false;
+        }
+        else {
+            widescreen = true;
+            iLudo->iWidescreenEnabled = true;
+        }
+        iLudo->SetScreenSize( size.iWidth, size.iHeight, widescreen );
+    }
+}
 
 // ---------------------------------------------------------
 // CLudoContainer::HandleResourceChange(

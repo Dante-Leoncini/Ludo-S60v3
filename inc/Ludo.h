@@ -127,6 +127,7 @@ class CLudo : public CFiniteStateMachine, public MTextureLoadingListener
          * @param aHeight New height of the screen.
          */
         void SetScreenSize( TUint aWidth, TUint aHeight );
+        void SetScreenSize( TUint aWidth, TUint aHeight, TBool widescreen );
 
     protected: // New functions
 
@@ -163,6 +164,9 @@ class CLudo : public CFiniteStateMachine, public MTextureLoadingListener
 			ELoadingTextures,
 			ERunning
 		};
+
+        /** para el menu de la app */
+        TBool iWidescreenEnabled;
 
         /** Whether or not the lighting is enabled. Used when building the menu for the application. */
         TBool iLightingEnabled;

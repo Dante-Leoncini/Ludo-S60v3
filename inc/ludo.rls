@@ -15,7 +15,10 @@
 rls_string STRING_r_app_caption_string       "Ludo"
 rls_string STRING_r_app_short_caption_string "Ludo"
 
-rls_string STRING_r_ludo_exit         "Exit"
+rls_string STRING_r_ludo_exit         "Salir"
+
+rls_string STRING_r_ludo_widescreen_on    "Pantalla Ancha on"
+rls_string STRING_r_ludo_widescreen_off   "Pantalla Ancha off"
 
 rls_string STRING_r_ludo_lighting     "Lights"
 rls_string STRING_r_ludo_lights_on    "Turn lights on"

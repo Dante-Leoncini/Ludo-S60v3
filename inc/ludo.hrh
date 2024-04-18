@@ -21,6 +21,7 @@ enum TLudoMenuCommands
     ELudoLamp,
     ELudoSpot,
 
+    ELudoWidescreen,
     ELudoModels,
     ELudoDuck,
     ELudoHead

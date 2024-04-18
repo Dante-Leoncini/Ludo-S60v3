@@ -26,14 +26,13 @@
 // Symbian 2nd phase constructor can leave.
 // ----------------------------------------------------------
 //
-void CLudoAppUi::ConstructL()
-    {
+void CLudoAppUi::ConstructL(){
     BaseConstructL();
     iAppContainer = new (ELeave) CLudoContainer;
     iAppContainer->SetMopParent(this);
     iAppContainer->ConstructL( ClientRect() );
     AddToStackL( iAppContainer );
-    }
+}
 
 // Destructor
 CLudoAppUi::~CLudoAppUi(){
@@ -55,17 +54,10 @@ void CLudoAppUi::DynInitMenuPaneL(
     TInt aResourceId, CEikMenuPane* aMenuPane )
     {
     // Item texts for the lighting menu.
-    if ( aResourceId == R_LUDO_LIGHTING_MENU )
-        {
+    if ( aResourceId == R_LUDO_LIGHTING_MENU ){
         // Text for switching the lights on/off.
-        if ( iAppContainer->iLudo->iLightingEnabled )
-            {
-            aMenuPane->SetItemTextL( ELudoLights, R_LIGHTS_OFF );
-            }
-        else
-            {
-            aMenuPane->SetItemTextL( ELudoLights, R_LIGHTS_ON  );
-            }
+        if ( iAppContainer->iLudo->iLightingEnabled ){aMenuPane->SetItemTextL( ELudoLights, R_LIGHTS_OFF );}
+        else {aMenuPane->SetItemTextL( ELudoLights, R_LIGHTS_ON  );}
 
         // Text for switching the lamp on/off.
         if ( iAppContainer->iLudo->iLampEnabled )
@@ -85,9 +77,14 @@ void CLudoAppUi::DynInitMenuPaneL(
         else
             {
             aMenuPane->SetItemTextL( ELudoSpot, R_SPOT_ON );
-            }
-        }
+		}
+	}
+    else if (aResourceId == R_LUDO_MENU){
+        // Texto para setear la pantalla ancha
+        if ( iAppContainer->iLudo->iWidescreenEnabled ){aMenuPane->SetItemTextL( ELudoWidescreen, R_WIDESCREEN_OFF );}
+        else {aMenuPane->SetItemTextL( ELudoWidescreen, R_WIDESCREEN_ON  );}    	
     }
+}
 
 // ----------------------------------------------------
 // CLudoAppUi::HandleKeyEventL
@@ -128,19 +125,19 @@ TKeyResponse CLudoAppUi::HandleKeyEventL(
 // Command handler
 // ----------------------------------------------------
 //
-void CLudoAppUi::HandleCommandL(TInt aCommand)
-    {
-    switch ( aCommand )
-        {
+void CLudoAppUi::HandleCommandL(TInt aCommand){
+    switch ( aCommand ){
         case EAknSoftkeyBack:
-        case EEikCmdExit:
-            {
+        case EEikCmdExit: {
             Exit();
             break;
-            }
+        }   
+        case ELudoWidescreen:
+            iAppContainer->SetWidescreen();
+            break;
         default:
             break;
-        }
     }
+}
 
 // End of File
