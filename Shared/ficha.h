@@ -1,3 +1,7 @@
+// Ficha.h
+#ifndef FICHA_H
+#define FICHA_H
+
 // MACROS
 #define objVerticesFicha    145
 #define objFacesFicha       272
@@ -575,3 +579,4 @@ static const GLushort objFacedataFicha[272 * 3]={
     140,144,34,
     138,143,33
 };
+#endif

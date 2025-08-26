@@ -47,3 +47,10 @@ static const GLbyte objTexdataModel[4 * 2] ={
     -127,-127,
     -127,127
 };
+
+static const GLfloat objTexdataModelF[4 * 2] ={
+    1.0f, 0.0f,   // esquina inferior derecha
+    1.0f, 1.0f,   // esquina superior derecha
+    0.0f, 0.0f,   // esquina inferior izquierda
+    0.0f, 1.0f    // esquina superior izquierda
+};
