@@ -177,17 +177,20 @@ void Render() {
 
 	for(int e=0; e < NumJugadores; e++){
 		//primero setea el color por equipo
-		if (e == Verde){
-			glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, objDiffuseGreen);
-		}
-		else if (e == Amarillo){
-			glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, objDiffuseYellow);
-		}
-		else if (e == Azul){
-			glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, objDiffuseBlue);
-		}
-		else {glMaterialfv(
-			GL_FRONT_AND_BACK, GL_DIFFUSE, objDiffuseRed);
+		switch (e) {
+			case Verde:
+				glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, objDiffuseGreen);
+				break;
+			case Amarillo:
+				glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, objDiffuseYellow);
+				break;
+			case Azul:
+				glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, objDiffuseBlue);
+				break;
+			case Rojo:
+			default:
+				glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, objDiffuseRed);
+				break;
 		}
 		//dibuja las 4 fichas
 		for(int i=0; i < 4; i++){
@@ -229,25 +232,27 @@ void Render() {
 	}
 	
 	//dado
-	glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, objDiffuseWhite);	
     glEnableClientState(GL_TEXTURE_COORD_ARRAY);
 	glEnable( GL_TEXTURE_2D ); //activa la textura
 	glBindTexture(  GL_TEXTURE_2D, texDado ); //selecciona la textura	
 	glVertexPointer( 3, GL_SHORT, 0, objVertexdataDado ); //selecciona los vertices
 	glNormalPointer( GL_BYTE, 0, objNormaldataDado ); //selecciona las normales
-    glTexCoordPointer( 2, GL_BYTE, 0, objTexdataDado );
+    glTexCoordPointer( 2, GL_FLOAT, 0, objTexdataDadoF );
 
-	if (TurnoDe == Verde){
-		glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, objDiffuseGreen);			
-	}
-	else if (TurnoDe == Amarillo){
-		glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, objDiffuseYellow);			
-	}	
-	else if (TurnoDe == Azul){
-		glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, objDiffuseBlue);			
-	}	
-	else if (TurnoDe == Rojo){
-		glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, objDiffuseRed);			
+	switch (TurnoDe) {
+		case Verde:
+			glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, objDiffuseGreen);
+			break;
+		case Amarillo:
+			glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, objDiffuseYellow);
+			break;
+		case Azul:
+			glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, objDiffuseBlue);
+			break;
+		case Rojo:
+		default:
+			glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, objDiffuseRed);
+			break;
 	}
 
 	//reset pos rot
@@ -276,6 +281,8 @@ void Render() {
 }
 
 void ConstructL(){
+    ConvertirTexData(objTexdataDado, objTexdataDadoF, 248 * 2);
+
 	for(int i=0; i<4; i++){
 		Equipos[i].termino = false;
 		Equipos[i].puesto = 0;

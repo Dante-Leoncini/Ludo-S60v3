@@ -747,6 +747,8 @@ static const GLushort objFacedataDado[236 * 3]={
     105,214,213
 };
 
+GLfloat objTexdataDadoF[248 * 2];
+
 /* textura UV */
 static const GLbyte objTexdataDado[248 * 2] ={
     -5,23,

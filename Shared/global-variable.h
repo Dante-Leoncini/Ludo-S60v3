@@ -571,3 +571,14 @@ void CalcOpciones(){
 		EstadoJuego = SeleccionFicha;
 	}
 }
+
+// Función para convertir y normalizar
+void ConvertirTexData(const GLbyte* src, GLfloat* dst, int count) {
+    const float minVal = -124.0f;   // mínimo de tus datos
+    const float maxVal = 124.0f;    // máximo de tus datos
+    const float range = maxVal - minVal; // 248.0f
+
+    for (int i = 0; i < count; ++i) {
+        dst[i] = (src[i] - minVal) / range; // normaliza a [0,1]
+    }
+}
