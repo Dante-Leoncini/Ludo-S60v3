@@ -38,8 +38,4 @@ static const GLfloat objTexdataSombraF[4 * 2] ={
     1.0f, 1.0f,  
     0.0f, 0.0f,  
     0.0f, 1.0f   
-    /*0.0f, 1.0f, 
-    1.0f, 1.0f,  
-    0.0f, 0.0f,   
-    1.0f, 0.0f */ 
 };

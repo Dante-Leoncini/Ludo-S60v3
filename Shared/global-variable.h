@@ -38,7 +38,7 @@ static const GLfloat objAmbient[4]  = { MATERIALCOLOR(0.4, 0.4, 0.4, 1.0) };
 static const GLfloat objSpecular[4] = { MATERIALCOLOR(1.0, 1.0, 1.0, 1.0) };
 
 // Luz blanca desde arriba/delante
-static const GLfloat light_pos[] = { 5000.0f, 5000.0f, 5000.0f, 1.0f };
+static const GLfloat light_pos[] = { -5000.0f, 5000.0f, 5000.0f, 1.0f };
 static const GLfloat light_diffuse[] = { 1.0f, 1.0f, 1.0f, 1.0f };
 static const GLfloat light_specular[] = { 1.0f, 1.0f, 1.0f, 1.0f };
 
