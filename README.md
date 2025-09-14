@@ -12,8 +12,17 @@ segundo: selecciona el modo manual (el dado 6) o al azar (dado 1). el dado manua
 despues las reglas son como las de cualquier (o casi cualquier) ludo
 
 # Linux
-Estoy probando un port multiplataforma de Linux/Symbian/Windows
+Estoy probando un port multiplataforma de Linux/Symbian
 debido a esto. estoy haciendo una gran reescritura. acomodando las cosas. etc.
+
+Para compilar en Ubuntu es necesario tener instalado: 
+
+build-essential → incluye g++, make, etc. (herramientas básicas de compilación).
+libsdl2-dev → cabeceras y librerías de desarrollo de SDL2.
+libsdl2-image-dev → lo mismo pero para SDL2_image.
+libglu1-mesa-dev, freeglut3-dev, mesa-common-dev → cabeceras y librerías de OpenGL/GLU.
+
+se puede instalar haciendo: "sudo apt install build-essential libsdl2-dev libsdl2-image-dev libglu1-mesa-dev freeglut3-dev mesa-common-dev"
 
 para compilar en linux. abran la carpeta "Linux" y usen el comando:
 "g++ main.cpp -o ludo -lSDL2 -lSDL2_image -lGL -lGLU"

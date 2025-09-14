@@ -76,12 +76,11 @@ void Render() {
     // Limpiar pantalla
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-
+	//dibujamos el tablero
     glEnable(GL_TEXTURE_2D);
 	glDisable(GL_LIGHTING); // No sombrear
 	glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
 
-	//tablero
     glBindTexture(GL_TEXTURE_2D, texTablero);
     glEnableClientState(GL_TEXTURE_COORD_ARRAY);
 
