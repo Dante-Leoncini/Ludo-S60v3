@@ -126,6 +126,25 @@ int main(int argc, char* argv[]) {
     while (running) {
         while (SDL_PollEvent(&e)) {
             if (e.type == SDL_QUIT) running = false;
+
+			//eventos del teclado
+			else if (e.type == SDL_KEYDOWN) {
+				switch (e.key.keysym.sym) {
+					case SDLK_RETURN:  // Enter
+						Confirmar();
+						break;
+					case SDLK_RIGHT:   // Flecha derecha
+						ClickDerecha();
+						break;
+					case SDLK_LEFT:    // Flecha izquierda
+						ClickIzquierda();
+						break;
+					// si querés, agregá más teclas aquí
+					case SDLK_ESCAPE:  // Esc para salir rápido
+						running = false;
+						break;
+				}
+			}
         }
 
         Render();

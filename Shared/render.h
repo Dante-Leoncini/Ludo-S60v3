@@ -32,10 +32,11 @@ void Render() {
     // Limpiar pantalla
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-
+	//dibujamos el tablero
     glEnable(GL_TEXTURE_2D);
+	glDisable(GL_LIGHTING); // No sombrear
+	glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
 
-	//tablero
     glBindTexture(GL_TEXTURE_2D, texTablero);
     glEnableClientState(GL_TEXTURE_COORD_ARRAY);
 
@@ -54,10 +55,6 @@ void Render() {
 	glVertexPointer( 3, GL_SHORT, 0, objVertexdataSombra ); //selecciona los vertices
     glTexCoordPointer(2, GL_FLOAT, 0, objTexdataSombraF);
 	glNormalPointer( GL_BYTE, 0, objNormaldataSombra ); //selecciona las normales
-
-	//glMaterialfv(   GL_FRONT_AND_BACK, GL_AMBIENT,  objAmbient  );
-	//glMaterialfv(   GL_FRONT_AND_BACK, GL_SPECULAR, objSpecular );
-	//glMaterialx( GL_FRONT_AND_BACK, GL_SHININESS,   12 << 16     );
 	
 	for(int i=0; i < NumJugadores*4; i++){
 		glPushMatrix(); //guarda la matrix
@@ -92,21 +89,16 @@ void Render() {
 	if (EstadoJuego == SeleccionFicha){
 		glPushMatrix(); //guarda la matrix
 		glVertexPointer( 3, GL_SHORT, 0, objVertexdataSeleccion ); //selecciona los vertices
-		glTexCoordPointer( 2, GL_BYTE, 0, objTexdataSeleccion );
+		glTexCoordPointer( 2, GL_FLOAT, 0, objTexdataSeleccionF );
 		glBindTexture(  GL_TEXTURE_2D, texSeleccion ); //selecciona la textura	
 		glNormalPointer( GL_BYTE, 0, objNormaldataSeleccion ); //selecciona las normales
-		if (TurnoDe == Verde){
-			glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, objDiffuseGreen);			
+		switch (TurnoDe) {
+			case Verde:  glColor4f(0.01f, 0.63f, 0.29f, 1.0f); break;
+			case Amarillo: glColor4f(1.0f, 0.87f, 0.02f, 1.0f); break;
+			case Azul: glColor4f(0.20f, 0.36f, 0.83f, 1.0f); break;
+			case Rojo: glColor4f(0.92f, 0.12f, 0.15f, 1.0f); break;
+			default: glColor4f(1.0f, 1.0f, 1.0f, 1.0f); break;
 		}
-		else if (TurnoDe == Amarillo){
-			glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, objDiffuseYellow);			
-		}	
-		else if (TurnoDe == Azul){
-			glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, objDiffuseBlue);			
-		}	
-		else if (TurnoDe == Rojo){
-			glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, objDiffuseRed);			
-		}	
 		glTranslatef(Fichas[FichaSeleccionada].posX, 0, Fichas[FichaSeleccionada].posY);
 		//dibuja
 		glDrawElements( GL_TRIANGLES, objFacesSombra * 3, GL_UNSIGNED_SHORT, objFacedataSeleccion );
@@ -116,6 +108,7 @@ void Render() {
     glDisableClientState(GL_TEXTURE_COORD_ARRAY);
 	
 	//Fichas
+	glEnable(GL_LIGHTING); // No sombrear
 	glEnable( GL_DEPTH_TEST ); //se recupera el zbuffer
 	glDisable( GL_TEXTURE_2D ); //desactiva las texturas
 	glVertexPointer( 3, GL_SHORT, 0, objVertexdataFicha ); //selecciona los vertices
@@ -157,31 +150,26 @@ void Render() {
 			if (Fichas[ficha].vivo && !Fichas[ficha].gano){		
 				if (casilleros[Fichas[ficha].casillero].visitantes > 9){
 				    glScalef(0.5f,0.5f,0.5f);	
-					glTranslatef( 0+PosHabitantesDieciseis[Fichas[ficha].IndiceHabitante][0],
-							      -5000, 
-							      0+PosHabitantesDieciseis[Fichas[ficha].IndiceHabitante][1]);	
+					glTranslatef( PosHabitantesDieciseis[Fichas[ficha].IndiceHabitante][0],
+							      0, //-5000, 
+							      PosHabitantesDieciseis[Fichas[ficha].IndiceHabitante][1]);	
 					
 				}
 				else if (casilleros[Fichas[ficha].casillero].visitantes > 4){
 				    glScalef(0.5f,0.5f,0.5f);	
-					glTranslatef( 0+PosHabitantesNueve[Fichas[ficha].IndiceHabitante][0],
-							      -5000, 
-							      0+PosHabitantesNueve[Fichas[ficha].IndiceHabitante][1]);	
+					glTranslatef( PosHabitantesNueve[Fichas[ficha].IndiceHabitante][0],
+							      0, //-5000, 
+							      PosHabitantesNueve[Fichas[ficha].IndiceHabitante][1]);	
 					
 				}
 				else if (casilleros[Fichas[ficha].casillero].visitantes > 1){
 				    glScalef(0.6f,0.6f,0.6f);	
-					glTranslatef( 0+PosHabitantesCuatro[Fichas[ficha].IndiceHabitante][0],
-							      -3200, 
-							      0+PosHabitantesCuatro[Fichas[ficha].IndiceHabitante][1]);	
+					glTranslatef( PosHabitantesCuatro[Fichas[ficha].IndiceHabitante][0],
+							      0, //-3200, 
+							      PosHabitantesCuatro[Fichas[ficha].IndiceHabitante][1]);	
 					
 				}			    
 			}
-
-			glTranslatef( PosHabitantesCuatro[Fichas[ficha].IndiceHabitante][0],
-						  0, //-3200
-						  PosHabitantesCuatro[Fichas[ficha].IndiceHabitante][1]
-						);	
 			glDrawElements( GL_TRIANGLES, objFacesFicha * 3, GL_UNSIGNED_SHORT, objFacedataFicha );
 			glPopMatrix(); //reinicia la matrix a donde se guardo
 		}

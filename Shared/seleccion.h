@@ -32,3 +32,10 @@ static const GLbyte objTexdataSeleccion[4 * 2] ={
     -127,-127,
     127,-127
 };
+
+static const GLfloat objTexdataSeleccionF[4 * 2] ={
+    1.0f, 0.0f,  
+    1.0f, 1.0f,  
+    0.0f, 0.0f,  
+    0.0f, 1.0f   
+};
