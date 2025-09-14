@@ -1,0 +1,237 @@
+// --- Función para dibujar la ficha ---
+void Render() {    
+    glPushMatrix();
+
+    // Rotación
+    glTranslatef( 0.0f, 3500.0f, 3000.0f );
+	//glTranslatef( 0, 55*100, -cameraDistance+170*100);
+
+	if (temblando){
+		glTranslatef(temblandoAnim[temblandoFrame][0], temblandoAnim[temblandoFrame][2], temblandoAnim[temblandoFrame][1]);		
+		temblandoFrame++;
+		if (temblandoFrame > 9){
+			temblando = false;
+			temblandoFrame = 0;			
+		}
+	}
+    glRotatef(angle, 1.0f, 0.0f, 0.0f);
+
+	if (TurnoDe == Verde){
+	    glClearColor( 0.01, 0.63, 0.29, 1.0 );		
+	}
+	else if (TurnoDe == Amarillo){
+	    glClearColor( 1.0, 0.87, 0.02, 1.0 );		
+	}	
+	else if (TurnoDe == Azul){
+	    glClearColor( 0.20, 0.36, 0.83, 1.0 );		
+	}	
+	else if (TurnoDe == Rojo){	
+	    glClearColor( 0.92, 0.12, 0.15, 1.0 );	
+	}
+
+    // Limpiar pantalla
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+
+    glEnable(GL_TEXTURE_2D);
+
+	//tablero
+    glBindTexture(GL_TEXTURE_2D, texTablero);
+    glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+
+    glVertexPointer(3, GL_SHORT, 0, objVertexdataModel);
+    glNormalPointer(GL_BYTE, 0, objNormaldataModel);
+    glTexCoordPointer(2, GL_FLOAT, 0, objTexdataModelF);
+	glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, objDiffuseWhite);		
+
+    glDrawElements(GL_TRIANGLES, objFacesModel * 3, GL_UNSIGNED_SHORT, objFacedataModel);
+
+    //sombras
+	glDisable( GL_DEPTH_TEST ); //se quita el zbuffer
+	glEnable( GL_BLEND ); // Enable blending for transparency.
+	glBindTexture(  GL_TEXTURE_2D, texSombra ); //selecciona la textura
+	glBlendFunc( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );
+	glVertexPointer( 3, GL_SHORT, 0, objVertexdataSombra ); //selecciona los vertices
+    glTexCoordPointer(2, GL_FLOAT, 0, objTexdataSombraF);
+	glNormalPointer( GL_BYTE, 0, objNormaldataSombra ); //selecciona las normales
+
+	//glMaterialfv(   GL_FRONT_AND_BACK, GL_AMBIENT,  objAmbient  );
+	//glMaterialfv(   GL_FRONT_AND_BACK, GL_SPECULAR, objSpecular );
+	//glMaterialx( GL_FRONT_AND_BACK, GL_SHININESS,   12 << 16     );
+	
+	for(int i=0; i < NumJugadores*4; i++){
+		glPushMatrix(); //guarda la matrix
+		SetPos(i, true);
+		if (Fichas[i].vivo && !Fichas[i].gano){
+			if (casilleros[Fichas[i].casillero].visitantes > 9){
+			    glScalef(0.5f,0.5f,0.5f);	
+				glTranslatef( PosHabitantesDieciseis[Fichas[i].IndiceHabitante][0],
+						      0,//-5000, 
+						      PosHabitantesDieciseis[Fichas[i].IndiceHabitante][1]);	
+				
+			}
+			else if (casilleros[Fichas[i].casillero].visitantes > 4){
+			    glScalef(0.5f,0.5f,0.5f);	
+				glTranslatef( PosHabitantesNueve[Fichas[i].IndiceHabitante][0],
+						      0,//-5000, 
+						      PosHabitantesNueve[Fichas[i].IndiceHabitante][1]);	
+				
+			}
+			else if (casilleros[Fichas[i].casillero].visitantes > 1){
+			    glScalef(0.6f,0.6f,0.6f);	
+				glTranslatef( PosHabitantesCuatro[Fichas[i].IndiceHabitante][0],
+						      0,//-3200, 
+						      PosHabitantesCuatro[Fichas[i].IndiceHabitante][1]);					
+			}	
+		}
+		glDrawElements( GL_TRIANGLES, objFacesSombra * 3, GL_UNSIGNED_SHORT, objFacedataSombra );
+		glPopMatrix(); //reinicia la matrix a donde se guardo
+	}
+	
+	//Seleccionado
+	if (EstadoJuego == SeleccionFicha){
+		glPushMatrix(); //guarda la matrix
+		glVertexPointer( 3, GL_SHORT, 0, objVertexdataSeleccion ); //selecciona los vertices
+		glTexCoordPointer( 2, GL_BYTE, 0, objTexdataSeleccion );
+		glBindTexture(  GL_TEXTURE_2D, texSeleccion ); //selecciona la textura	
+		glNormalPointer( GL_BYTE, 0, objNormaldataSeleccion ); //selecciona las normales
+		if (TurnoDe == Verde){
+			glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, objDiffuseGreen);			
+		}
+		else if (TurnoDe == Amarillo){
+			glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, objDiffuseYellow);			
+		}	
+		else if (TurnoDe == Azul){
+			glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, objDiffuseBlue);			
+		}	
+		else if (TurnoDe == Rojo){
+			glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, objDiffuseRed);			
+		}	
+		glTranslatef(Fichas[FichaSeleccionada].posX, 0, Fichas[FichaSeleccionada].posY);
+		//dibuja
+		glDrawElements( GL_TRIANGLES, objFacesSombra * 3, GL_UNSIGNED_SHORT, objFacedataSeleccion );
+		glPopMatrix(); //reinicia la matrix a donde se guardo	
+	}
+
+    glDisableClientState(GL_TEXTURE_COORD_ARRAY);
+	
+	//Fichas
+	glEnable( GL_DEPTH_TEST ); //se recupera el zbuffer
+	glDisable( GL_TEXTURE_2D ); //desactiva las texturas
+	glVertexPointer( 3, GL_SHORT, 0, objVertexdataFicha ); //selecciona los vertices
+	glNormalPointer( GL_BYTE, 0, objNormaldataFicha ); //selecciona las normales
+
+	glMaterialfv(   GL_FRONT_AND_BACK, GL_AMBIENT,  objAmbient  );
+	glMaterialfv(   GL_FRONT_AND_BACK, GL_SPECULAR, objSpecular );
+    #ifdef __SYMBIAN32__  
+        // Symbian (OpenGL ES 1.1 con punto fijo)
+        glMaterialx(GL_FRONT_AND_BACK, GL_SHININESS, 12 << 16);
+    #else
+        // PC (OpenGL normal)
+        glMateriali(GL_FRONT_AND_BACK, GL_SHININESS, 12);
+    #endif
+
+	for(int e=0; e < NumJugadores; e++){
+		//primero setea el color por equipo
+		switch (e) {
+			case Verde:
+				glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, objDiffuseGreen);
+				break;
+			case Amarillo:
+				glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, objDiffuseYellow);
+				break;
+			case Azul:
+				glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, objDiffuseBlue);
+				break;
+			case Rojo:
+			default:
+				glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, objDiffuseRed);
+				break;
+		}
+		//dibuja las 4 fichas
+		for(int i=0; i < 4; i++){
+			glPushMatrix(); //guarda la matrix
+			int ficha = e*4+i;
+			SetPos(ficha, false);	//lo dibuja en su posicion y reinicia la matrix	
+			//esto es cuando hay varias ficahs en un mismo casillero
+			if (Fichas[ficha].vivo && !Fichas[ficha].gano){		
+				if (casilleros[Fichas[ficha].casillero].visitantes > 9){
+				    glScalef(0.5f,0.5f,0.5f);	
+					glTranslatef( 0+PosHabitantesDieciseis[Fichas[ficha].IndiceHabitante][0],
+							      -5000, 
+							      0+PosHabitantesDieciseis[Fichas[ficha].IndiceHabitante][1]);	
+					
+				}
+				else if (casilleros[Fichas[ficha].casillero].visitantes > 4){
+				    glScalef(0.5f,0.5f,0.5f);	
+					glTranslatef( 0+PosHabitantesNueve[Fichas[ficha].IndiceHabitante][0],
+							      -5000, 
+							      0+PosHabitantesNueve[Fichas[ficha].IndiceHabitante][1]);	
+					
+				}
+				else if (casilleros[Fichas[ficha].casillero].visitantes > 1){
+				    glScalef(0.6f,0.6f,0.6f);	
+					glTranslatef( 0+PosHabitantesCuatro[Fichas[ficha].IndiceHabitante][0],
+							      -3200, 
+							      0+PosHabitantesCuatro[Fichas[ficha].IndiceHabitante][1]);	
+					
+				}			    
+			}
+
+			glTranslatef( PosHabitantesCuatro[Fichas[ficha].IndiceHabitante][0],
+						  0, //-3200
+						  PosHabitantesCuatro[Fichas[ficha].IndiceHabitante][1]
+						);	
+			glDrawElements( GL_TRIANGLES, objFacesFicha * 3, GL_UNSIGNED_SHORT, objFacedataFicha );
+			glPopMatrix(); //reinicia la matrix a donde se guardo
+		}
+	}
+	
+	//dado
+    glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+	glEnable( GL_TEXTURE_2D ); //activa la textura
+	glBindTexture(  GL_TEXTURE_2D, texDado ); //selecciona la textura	
+	glVertexPointer( 3, GL_SHORT, 0, objVertexdataDado ); //selecciona los vertices
+	glNormalPointer( GL_BYTE, 0, objNormaldataDado ); //selecciona las normales
+    glTexCoordPointer( 2, GL_FLOAT, 0, objTexdataDadoF );
+
+	switch (TurnoDe) {
+		case Verde:
+			glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, objDiffuseGreen);
+			break;
+		case Amarillo:
+			glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, objDiffuseYellow);
+			break;
+		case Azul:
+			glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, objDiffuseBlue);
+			break;
+		case Rojo:
+		default:
+			glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, objDiffuseRed);
+			break;
+	}
+
+	//reset pos rot
+	glTranslatef(0, -4750, 0); //x, z, y
+	glTranslatef(animacionPos[animacionPosFrame][0]+posDado[TurnoDe][0], 
+			     animacionPos[animacionPosFrame][2], 
+			     animacionPos[animacionPosFrame][1]+posDado[TurnoDe][1]); //x, z, y
+
+	//rotacion del dado
+	glRotatef(-animacionRot[animacionPosFrame][0], 0, 0, 1); //angulo, X Y Z
+	glRotatef(-animacionRot[animacionPosFrame][1], 0, 1, 0); //angulo, X Y Z
+	glRotatef(-animacionRot[animacionPosFrame][2], 1, 0, 0); //angulo, X Y Z
+	SetDado();
+	
+	glDrawElements( GL_TRIANGLES, objFacesDado * 3, GL_UNSIGNED_SHORT, objFacedataDado );
+	
+	if (97 > animacionPosFrame){
+		animacionPosFrame++;
+	}
+	else if (EstadoJuego == DadoLanzado){
+		CalcOpciones();
+	}
+    glDisableClientState(GL_TEXTURE_COORD_ARRAY);
+
+    glPopMatrix();             // Restaurar matriz
+}
