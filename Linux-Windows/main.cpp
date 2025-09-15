@@ -10,7 +10,7 @@
 
 #include "../Shared/recorridos.h"
 #include "../Shared/dado.h"
-#include "../Shared/global-variable.h"
+#include "../Shared/variables.h"
 #include "../Shared/ficha.h"
 #include "../Shared/tablero.h"
 #include "../Shared/sombra.h"
@@ -18,16 +18,8 @@
 #include "../Shared/constructor.h"
 #include "../Shared/render.h"
 
-struct Config {
-    bool fullscreen = false;
-    int width = 800;
-    int height = 600;
-	int displayIndex = 0; // monitor 1
-};
-
 // Función simple para leer el ini
 Config loadConfig(const std::string& filename) {
-    Config cfg;
     std::ifstream file(filename);
     if (!file.is_open()) {
         std::cerr << "No se pudo abrir " << filename << ", usando valores por defecto.\n";
@@ -111,7 +103,7 @@ int main(int argc, char* argv[]) {
 	if (cfg.fullscreen) windowFlags |= SDL_WINDOW_FULLSCREEN_DESKTOP;
 
     // Crear ventana con OpenGL
-    SDL_Window* window = SDL_CreateWindow(
+    window = SDL_CreateWindow(
 		"Ludo",
     	SDL_WINDOWPOS_CENTERED_DISPLAY(cfg.displayIndex), // posición centrada en monitor 2
 		SDL_WINDOWPOS_CENTERED_DISPLAY(cfg.displayIndex),
@@ -133,10 +125,15 @@ int main(int argc, char* argv[]) {
     gluPerspective(45.0,(float)cfg.width/(float)cfg.height, 10.0, 20000.0);
 
     // Cargar textura
-    if (!LoadTexture("../Shared/tablero.jpg", texTablero)) {
+    /*if (!LoadTexture("../Shared/tablero.jpg", texTablero)) {
         std::cerr << "Error cargando tablero.jpg" << std::endl;
         return -1;
-    }
+    }*/
+	//version HD para PC
+    if (!LoadTexture("../Shared/tablero_HD.png", texTablero)) {
+        std::cerr << "Error cargando tablero_HD.png" << std::endl;
+        return -1;
+    }	
     if (!LoadTexture("../Shared/dice-texture.jpg", texDado)) {
         std::cerr << "Error cargando dice-texture.jpg" << std::endl;
         return -1;
@@ -155,12 +152,6 @@ int main(int argc, char* argv[]) {
 
     // Cámara y transformaciones
     glMatrixMode(GL_MODELVIEW);
-
-    glLoadIdentity();
-
-    gluLookAt(0, 0, 8000,   // ojo
-        0, 0, 0,      // centro
-        0, 1, 0);     // up
 
 	glEnable(GL_NORMALIZE);
 	glShadeModel(GL_SMOOTH);
@@ -203,12 +194,93 @@ int main(int argc, char* argv[]) {
             else if (e.type == SDL_CONTROLLERBUTTONDOWN) {
                 switch (e.cbutton.button) {
                     case SDL_CONTROLLER_BUTTON_A: Confirmar(); break;
+                    case SDL_CONTROLLER_BUTTON_Y: ResetCamara(); break;
+                    //case SDL_CONTROLLER_BUTTON_X: Restar(); break;
                     case SDL_CONTROLLER_BUTTON_DPAD_RIGHT: ClickDerecha(); break;
                     case SDL_CONTROLLER_BUTTON_DPAD_LEFT:  ClickIzquierda(); break;
                     case SDL_CONTROLLER_BUTTON_B: running = false; break;
                 }
             }
+			else if (e.type == SDL_CONTROLLERAXISMOTION) {
+				float value = e.caxis.value / 32767.0f;
+				if (fabs(value) < 0.05f) value = 0.0f; // deadzone
+
+				axisState[e.caxis.axis] = value; // guardar el valor normalizado
+			}
+			// Botones del mouse
+			else if (e.type == SDL_MOUSEBUTTONDOWN) {
+				if (e.button.button == SDL_BUTTON_LEFT) { 
+					Confirmar();
+				}
+				else if (e.button.button == SDL_BUTTON_MIDDLE) {  // rueda clic
+					middleMouseDown = true;
+					GuardarMousePos();
+				}
+				/*else if (e.button.button == SDL_BUTTON_RIGHT) {  
+				}*/
+			}
+			else if (e.type == SDL_MOUSEBUTTONUP) {
+				if (e.button.button == SDL_BUTTON_MIDDLE) {
+					middleMouseDown = false;
+				}
+			}
+			else if (e.type == SDL_MOUSEMOTION){
+				int mx = e.motion.x;
+				int my = e.motion.y;
+				if (middleMouseDown) {
+					CheckWarpMouseInWindow(mx, my);
+					// Chequear si Shift está presionado
+					bool shiftHeld = (SDL_GetModState() & KMOD_SHIFT);
+
+					if (shiftHeld) {
+
+						PivotZ -= dy * factor * cosY;
+						PivotX += dx * factor * cosX - dy * factor * sinY * sinX;
+						PivotY += dx * factor * sinX + dy * factor * sinY * cosX;
+					} 
+					else {
+						// ROTAR cámara
+						rotX += dx * 0.2f;  
+						rotY += dy * 0.2f;  
+						recalcularCamara = true;
+					}
+				}
+			}
         }
+
+		rotX   += axisState[SDL_CONTROLLER_AXIS_RIGHTX] * 2.0f;
+		rotY   += axisState[SDL_CONTROLLER_AXIS_RIGHTY] * 2.0f;
+
+		// Limitar rotY para evitar giros extremos
+		if(rotY > 180.0f) rotY -= 360.0f;
+		if(rotY < -180.0f) rotY += 360.0f;
+		if(rotX > 180.0f) rotX -= 360.0f;
+		if(rotX < -180.0f) rotX += 360.0f;
+
+		if (recalcularCamara || axisState[SDL_CONTROLLER_AXIS_RIGHTX] != 0.0f || axisState[SDL_CONTROLLER_AXIS_RIGHTY] != 0.0f ){
+			//precalculos
+			radY = rotY * M_PI / 180.0f; // Yaw
+			radX = rotX * M_PI / 180.0f; // Pitch
+
+			cosX = cos(radX);
+			sinX = sin(radX);
+			cosY = cos(radY);
+			sinY = sin(radY);
+			recalcularCamara = false;
+		}
+
+		// Movimiento cámara según sticks y gatillos
+		PivotZ -= axisState[SDL_CONTROLLER_AXIS_LEFTY] * factor * cosY;
+		PivotX += axisState[SDL_CONTROLLER_AXIS_LEFTX] * factor * cosX - axisState[SDL_CONTROLLER_AXIS_LEFTY] * factor * sinY * sinX;
+		PivotY += axisState[SDL_CONTROLLER_AXIS_LEFTX] * factor * sinX + axisState[SDL_CONTROLLER_AXIS_LEFTY] * factor * sinY * cosX;
+
+		//std::cout << "rotY: " << rotY << std::endl;
+
+		posY   += (axisState[SDL_CONTROLLER_AXIS_TRIGGERRIGHT] - 
+				axisState[SDL_CONTROLLER_AXIS_TRIGGERLEFT]) * 10.0f;
+
+		//test   += (axisState[SDL_CONTROLLER_AXIS_TRIGGERRIGHT] - 
+		//		axisState[SDL_CONTROLLER_AXIS_TRIGGERLEFT]) * 0.5f;
 
         Render();
 
