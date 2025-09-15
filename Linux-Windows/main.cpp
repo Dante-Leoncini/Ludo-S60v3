@@ -2,6 +2,10 @@
 #include <SDL2/SDL_image.h>
 #include <GL/gl.h>
 #include <GL/glu.h>
+
+#include <fstream>
+#include <string>
+#include <sstream>
 #include <iostream>
 
 #include "../Shared/recorridos.h"
@@ -13,6 +17,37 @@
 #include "../Shared/seleccion.h"
 #include "../Shared/constructor.h"
 #include "../Shared/render.h"
+
+struct Config {
+    bool fullscreen = false;
+    int width = 800;
+    int height = 600;
+	int displayIndex = 0; // monitor 1
+};
+
+// Función simple para leer el ini
+Config loadConfig(const std::string& filename) {
+    Config cfg;
+    std::ifstream file(filename);
+    if (!file.is_open()) {
+        std::cerr << "No se pudo abrir " << filename << ", usando valores por defecto.\n";
+        return cfg;
+    }
+
+    std::string line;
+    while (std::getline(file, line)) {
+        std::istringstream iss(line);
+        std::string key, eq, value;
+        if (iss >> key >> eq >> value && eq == "=") {
+            if (key == "fullscreen") cfg.fullscreen = (value == "true");
+            else if (key == "width") cfg.width = std::stoi(value);
+            else if (key == "height") cfg.height = std::stoi(value);
+            else if (key == "displayIndex") cfg.displayIndex = std::stoi(value);
+        }
+    }
+
+    return cfg;
+}
 
 // --- Cargar textura ---
 bool LoadTexture(const char* filename, GLuint &textureID) {
@@ -49,9 +84,20 @@ int main(int argc, char* argv[]) {
     ConstructL();
 
     // Inicializar SDL
-    if (SDL_Init(SDL_INIT_VIDEO) < 0) {
-        std::cerr << "Error SDL_Init: " << SDL_GetError() << std::endl;
-        return -1;
+	if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_GAMECONTROLLER) < 0) {
+		std::cerr << "Error SDL_Init: " << SDL_GetError() << std::endl;
+		return -1;
+	}
+
+    // Abrir el primer mando disponible
+    if (SDL_NumJoysticks() > 0) {
+        if (SDL_IsGameController(0)) {
+            controller = SDL_GameControllerOpen(0);
+            if (controller) {
+                std::cout << "Control detectado: " 
+                        << SDL_GameControllerName(controller) << std::endl;
+            }
+        }
     }
 
     // ---- CONFIGURAR ANTIALIASING ----
@@ -59,11 +105,18 @@ int main(int argc, char* argv[]) {
     SDL_GL_SetAttribute(SDL_GL_MULTISAMPLEBUFFERS, 1);
     SDL_GL_SetAttribute(SDL_GL_MULTISAMPLESAMPLES, 4); // 4x MSAA (puedes probar 8, 16 si tu GPU soporta)
 
+	Config cfg = loadConfig("./configuraciones.ini");
+
+    Uint32 windowFlags = SDL_WINDOW_OPENGL | SDL_WINDOW_SHOWN;
+	if (cfg.fullscreen) windowFlags |= SDL_WINDOW_FULLSCREEN_DESKTOP;
+
     // Crear ventana con OpenGL
-    SDL_Window* window = SDL_CreateWindow("SDL2 OpenGL Cube",
-        SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
-        800, 600,
-        SDL_WINDOW_OPENGL | SDL_WINDOW_SHOWN);
+    SDL_Window* window = SDL_CreateWindow(
+		"Ludo",
+    	SDL_WINDOWPOS_CENTERED_DISPLAY(cfg.displayIndex), // posición centrada en monitor 2
+		SDL_WINDOWPOS_CENTERED_DISPLAY(cfg.displayIndex),
+        cfg.width, cfg.height,
+        windowFlags);
 
     if (!window) {
         std::cerr << "Error SDL_CreateWindow: " << SDL_GetError() << std::endl;
@@ -77,7 +130,7 @@ int main(int argc, char* argv[]) {
     //glDisable(GL_CULL_FACE); // desactivar culling
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
-    gluPerspective(45.0, 800.0/600.0, 10.0, 20000.0);
+    gluPerspective(45.0,(float)cfg.width/(float)cfg.height, 10.0, 20000.0);
 
     // Cargar textura
     if (!LoadTexture("../Shared/tablero.jpg", texTablero)) {
@@ -145,6 +198,16 @@ int main(int argc, char* argv[]) {
 						break;
 				}
 			}
+
+            // gamepad (si usás SDL_INIT_GAMECONTROLLER)
+            else if (e.type == SDL_CONTROLLERBUTTONDOWN) {
+                switch (e.cbutton.button) {
+                    case SDL_CONTROLLER_BUTTON_A: Confirmar(); break;
+                    case SDL_CONTROLLER_BUTTON_DPAD_RIGHT: ClickDerecha(); break;
+                    case SDL_CONTROLLER_BUTTON_DPAD_LEFT:  ClickIzquierda(); break;
+                    case SDL_CONTROLLER_BUTTON_B: running = false; break;
+                }
+            }
         }
 
         Render();
@@ -156,6 +219,9 @@ int main(int argc, char* argv[]) {
         SDL_Delay(16); // ~60 fps
     }
 
+	if (controller) {
+		SDL_GameControllerClose(controller);
+	}
     SDL_GL_DeleteContext(context);
     SDL_DestroyWindow(window);
     SDL_Quit();
