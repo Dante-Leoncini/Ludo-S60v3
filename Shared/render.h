@@ -16,20 +16,52 @@ void DebugRender(int valor){
 
 void CalcularAnimaciones(){
     for (int i = 0; i < NUM_ANIMACIONES; i++) {        
-        if (animFrame[i] > 100) {
-            animFrame[i] = 100;
-        }
 		// Solo hacemos la transición para la animación del fondo
-        if (i == fondo && animFrame[i] < 100) {
-			animFrame[i]+=2;
-            for (int c = 0; c < 3; c++) {
-                // Diferencia entre color objetivo y color anterior
-                int delta = static_cast<int>((colorFondoTransicion[c] - colorFondoAnterior[c]) * 1000.0f); // escala temporal para int
-                // Valor interpolado usando tu función Animacion
-                int val = Animacion(delta, animFrame[i], easeInOut);
-                // Reconstruir el valor float
-                colorFondo[c] = colorFondoAnterior[c] + val / 1000.0f;
-            }
+        if (animFrame[i] <= 100) {
+			switch (i) {
+				case fondo: {
+					animFrame[i]+=2;
+					for (int c = 0; c < 3; c++) {
+						// Diferencia entre color objetivo y color anterior
+						int delta = static_cast<int>((colorFondoTransicion[c] - colorFondoAnterior[c]) * 1000.0f); // escala temporal para int
+						// Valor interpolado usando tu función Animacion
+						int val = Animacion(delta, animFrame[i], easeInOut);
+						// Reconstruir el valor float
+						colorFondo[c] = colorFondoAnterior[c] + val / 1000.0f;
+					}
+					break;
+				}
+				case selector: {
+					animFrame[i]+=2;
+					if (animFrame[i] >= 100){
+						colorSeleccion[0] = colorSeleccionFinal[0];
+						colorSeleccion[1] = colorSeleccionFinal[1];
+						colorSeleccion[2] = colorSeleccionFinal[2];
+
+						colorSeleccionFinal[0] = colorSeleccionInicio[0];
+						colorSeleccionFinal[1] = colorSeleccionInicio[1];
+						colorSeleccionFinal[2] = colorSeleccionInicio[2];
+
+						colorSeleccionInicio[0] = colorSeleccion[0];
+						colorSeleccionInicio[1] = colorSeleccion[1];
+						colorSeleccionInicio[2] = colorSeleccion[2];
+						animFrame[i] = 0;
+					}
+					else {
+						for (int c = 0; c < 3; c++) {
+							// Diferencia entre color objetivo y color anterior
+							int delta = static_cast<int>((colorSeleccionFinal[c] - colorSeleccionInicio[c]) * 1000.0f); // escala temporal para int
+							// Valor interpolado usando tu función Animacion
+							int val = Animacion(delta, animFrame[i], easeInOut);
+							// Reconstruir el valor float
+							colorSeleccion[c] = colorSeleccionInicio[c] + val / 1000.0f;
+						}
+					}
+					//std::cout << "frame=" << animFrame[i] << std::endl;
+					break;
+				}
+				default: break;
+			}
         }
     }
 }
@@ -54,7 +86,7 @@ void Render() {
 		}
 	}
 
-	glClearColor( colorFondo[0], colorFondo[1], colorFondo[2], colorFondo[3] );	
+	glClearColor( colorFondo[0], colorFondo[1], colorFondo[2], 1.0f );	
 
     // Limpiar pantalla
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -131,13 +163,7 @@ void Render() {
 		glTexCoordPointer( 2, GL_FLOAT, 0, objTexdataSeleccionF );
 		glBindTexture(  GL_TEXTURE_2D, texSeleccion ); //selecciona la textura	
 		glNormalPointer( GL_BYTE, 0, objNormaldataSeleccion ); //selecciona las normales
-		switch (TurnoDe) {
-			case Verde:  glColor4f(0.01f, 0.63f, 0.29f, 1.0f); break;
-			case Amarillo: glColor4f(1.0f, 0.87f, 0.02f, 1.0f); break;
-			case Azul: glColor4f(0.20f, 0.36f, 0.83f, 1.0f); break;
-			case Rojo: glColor4f(0.92f, 0.12f, 0.15f, 1.0f); break;
-			default: glColor4f(1.0f, 1.0f, 1.0f, 1.0f); break;
-		}
+		glColor4f(colorSeleccion[0], colorSeleccion[1], colorSeleccion[2], 1.0f);
 		glTranslatef(Fichas[FichaSeleccionada].posX, 0, Fichas[FichaSeleccionada].posY);
 		//dibuja
 		glDrawElements( GL_TRIANGLES, objFacesSombra * 3, GL_UNSIGNED_SHORT, objFacedataSeleccion );
@@ -155,7 +181,6 @@ void Render() {
 	glVertexPointer( 3, GL_SHORT, 0, objVertexdataFicha ); //selecciona los vertices
 	glNormalPointer( GL_BYTE, 0, objNormaldataFicha ); //selecciona las normales
 
-	glMaterialfv(   GL_FRONT_AND_BACK, GL_AMBIENT,  objAmbient  );
 	glMaterialfv(   GL_FRONT_AND_BACK, GL_SPECULAR, objSpecular );
     #ifdef __SYMBIAN32__  
         // Symbian (OpenGL ES 1.1 con punto fijo)
@@ -169,19 +194,33 @@ void Render() {
 		//primero setea el color por equipo
 		switch (e) {
 			case Verde:
+				objAmbient[0] = ambientDiffuseGreen[0];
+				objAmbient[1] = ambientDiffuseGreen[1];
+				objAmbient[2] = ambientDiffuseGreen[2];
 				glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, objDiffuseGreen);
 				break;
 			case Amarillo:
+				objAmbient[0] = ambientDiffuseYellow[0];
+				objAmbient[1] = ambientDiffuseYellow[1];
+				objAmbient[2] = ambientDiffuseYellow[2];
 				glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, objDiffuseYellow);
 				break;
 			case Azul:
+				objAmbient[0] = ambientDiffuseBlue[0];
+				objAmbient[1] = ambientDiffuseBlue[1];
+				objAmbient[2] = ambientDiffuseBlue[2];
 				glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, objDiffuseBlue);
 				break;
 			case Rojo:
 			default:
+				objAmbient[0] = ambientDiffuseRed[0];
+				objAmbient[1] = ambientDiffuseRed[1];
+				objAmbient[2] = ambientDiffuseRed[2];
 				glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, objDiffuseRed);
 				break;
 		}
+		glMaterialfv(   GL_FRONT_AND_BACK, GL_AMBIENT,  objAmbient  );
+
 		//dibuja las 4 fichas
 		for(int i=0; i < 4; i++){
 			glPushMatrix(); //guarda la matrix
@@ -228,19 +267,32 @@ void Render() {
 
 	switch (TurnoDe) {
 		case Verde:
+			objAmbient[0] = ambientDiffuseGreen[0];
+			objAmbient[1] = ambientDiffuseGreen[1];
+			objAmbient[2] = ambientDiffuseGreen[2];
 			glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, objDiffuseGreen);
 			break;
 		case Amarillo:
+			objAmbient[0] = ambientDiffuseYellow[0];
+			objAmbient[1] = ambientDiffuseYellow[1];
+			objAmbient[2] = ambientDiffuseYellow[2];
 			glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, objDiffuseYellow);
 			break;
 		case Azul:
+			objAmbient[0] = ambientDiffuseBlue[0];
+			objAmbient[1] = ambientDiffuseBlue[1];
+			objAmbient[2] = ambientDiffuseBlue[2];
 			glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, objDiffuseBlue);
 			break;
 		case Rojo:
 		default:
+			objAmbient[0] = ambientDiffuseRed[0];
+			objAmbient[1] = ambientDiffuseRed[1];
+			objAmbient[2] = ambientDiffuseRed[2];
 			glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, objDiffuseRed);
 			break;
 	}
+	glMaterialfv(   GL_FRONT_AND_BACK, GL_AMBIENT,  objAmbient  );
 
 	//reset pos rot
 	glTranslatef(animacionPos[animacionPosFrame][0]+posDado[TurnoDe][0], 

@@ -2,6 +2,11 @@
 #include <random>
 #include <chrono>
 
+#ifndef PI
+#define PI 3.14159265358979323846
+#define PIdividido 3.14159265358979323846/2
+#endif
+
 //variables de SDL2
 SDL_Window* window = nullptr;
 SDL_GameController* controller = nullptr;
@@ -28,10 +33,6 @@ void ResetCamara(){
 	PivotZ = 1000.0f;
 }
 
-#ifndef PI
-#define PI 3.14159265358979323846
-#endif
-
 GLuint texTablero, texDado, texSombra, texSeleccion;
 
 //parametros del juego
@@ -42,11 +43,12 @@ typedef enum { CantidadJugadores, ModoDado, SeleccionDado, DadoLanzado, Seleccio
 Estados EstadoJuego = CantidadJugadores;
 
 enum Frames {
-    fondo
+    fondo,
+	selector
 };
 
-int NUM_ANIMACIONES = 1;
-int animFrame[] = {0};
+int NUM_ANIMACIONES = 2;
+int animFrame[] = {0, 0};
 
 #define MATERIAL_MAX 1
 #define MATERIALCOLOR(r, g, b, a)     \
@@ -62,14 +64,24 @@ static const GLfloat objDiffuseGreen[4]  = { MATERIALCOLOR(0.01, 0.63, 0.29, 1.0
 static const GLfloat objDiffuseBlue[4]  = { MATERIALCOLOR(0.20, 0.36, 0.83, 1.0) };
 static const GLfloat objDiffuseYellow[4]  = { MATERIALCOLOR(1.0, 0.87, 0.02, 1.0) };
 
-static const GLfloat objAmbient[4]  = { MATERIALCOLOR(0.4, 0.4, 0.4, 1.0) };
+static const GLfloat ambientDiffuseRed[3]  = { 0.92*1.5, 0.12*1.5, 0.15*1.5};
+static const GLfloat ambientDiffuseGreen[3]  = { 0.01*1.5, 0.63*1.5, 0.29*1.5};
+static const GLfloat ambientDiffuseBlue[3]  = { 0.20*1.5, 0.36*1.5, 0.83*1.5};
+static const GLfloat ambientDiffuseYellow[3]  = { 1.0*1.5, 0.87*1.5, 0.02*1.5};
+
+
+GLfloat objAmbient[4]  = { 3.0, 3.0, 3.0, 1.0 };
 
 //Specular Basico
 static const GLfloat objSpecular[4] = { MATERIALCOLOR(1.0, 1.0, 1.0, 1.0) };
 
-GLfloat colorFondo[4] = { 0.01, 0.63, 0.29, 1.0 };
-GLfloat colorFondoAnterior[4] = { 0.0, 0.0, 0.0, 1.0 };
-GLfloat colorFondoTransicion[4] = { 0.01, 0.63, 0.29, 1.0 };
+GLfloat colorFondo[3] = { 0.01, 0.63, 0.29 };
+GLfloat colorFondoAnterior[3] = { 0.0, 0.0, 0.0 };
+GLfloat colorFondoTransicion[3] = { 0.01, 0.63, 0.29 };
+
+GLfloat colorSeleccionInicio[3] = { 0.00, 0.00, 0.00 };
+GLfloat colorSeleccion[3] = { 0.00, 0.00, 0.00 };
+GLfloat colorSeleccionFinal[3] = { 0.00, 0.00, 0.00 };
 
 // Luz blanca desde arriba/delante
 static const GLfloat light_pos[] = { -5000.0f, 5000.0f, 5000.0f, 1.0f };
@@ -164,7 +176,7 @@ int OpcionSeleccionada = 0;
 int CantOpciones = 0;
 int OpcPosibles[4] = {0,0,0,0};
 
-bool temblando = true;
+bool temblando = false;
 int temblandoFrame = 0;
 static const int temblandoAnim[10][3] = {
     {-6, -4, -1},
@@ -213,46 +225,40 @@ Equipo Equipos[4];
 //Calcula la animacion dependiendo la curva
 // Si ya tienes el enum, úsalo en la firma
 int Animacion(int valor, int frame, int transicion) {
-    // Normaliza frame al rango [0..100] para evitar desbordes
-    if (frame < 0)   frame = 0;
-    if (frame > 100) frame = 100;
-
-    // t es 0..1
-    const double t = frame / 100.0;
-    double r = 0.0;
-
-    switch (transicion) {
-        case linear:
-            r = valor * t;
-            break;
-
-        case easeIn:
-            r = valor * t * t;
-            break;
-
-        case easeOut:
-            // sin(π/2 * t)
-            r = valor * std::sin(PI * 0.5 * t);
-            break;
-
-        case easeInOut:
-            // sin(π * frame / 200) == sin(π * t / 2)
-            r = valor * std::sin(PI * 0.5 * t);
-            break;
-
-        case RisingFalling:
-            // sin(π * t)
-            r = valor * std::sin(PI * t);
-            break;
-
-        default:
-            // fallback razonable
-            r = valor * t;
-            break;
-    }
-
-    // Si prefieres truncar como antes: (int)r
-    return static_cast<int>(r);
+    // Normaliza frame al rango [0..100] para evitar desbordes 
+	if (frame < 0) frame = 0; 
+	if (frame > 100) frame = 100; 
+	
+	// t es 0..1 
+	const double t = frame / 100.0; 
+	double r = 0.0; 
+	
+	switch (transicion) { 
+		case linear: 
+			r = valor * t; 
+			break; 
+		case easeIn: 
+			r = valor * t * t; 
+			break; 
+		case easeOut: 
+			// sin(π/2 * t) 
+			r = valor * std::sin(PIdividido * t); 
+			break; 
+		case easeInOut: 
+			// sin(π * frame / 200) == sin(π * t / 2) 
+			r = valor * std::sin(PIdividido * t); 
+			break; 
+		case RisingFalling: 
+			// sin(π * t) 
+			r = valor * std::sin(PI * t);
+			break; 
+		default: 
+			// fallback razonable 
+			r = valor * t; 
+			break; 
+	} 
+	// Si prefieres truncar como antes: (int)r 
+	return static_cast<int>(r); 
 }
 
 //Coloca la pieza viva o mierta
@@ -460,6 +466,43 @@ void NextPos( int ficha, int movimiento ){
 	SetTurno();
 }
 
+void SetAnimacionSelector(){
+	switch (TurnoDe) {
+		case Verde: {
+			colorSeleccionInicio[0] = 0.01f;
+			colorSeleccionInicio[1] = 0.63f;
+			colorSeleccionInicio[2] = 0.29f;
+			break;
+		}
+		case Amarillo: {
+			colorSeleccionInicio[0] = 1.0f;
+			colorSeleccionInicio[1] = 0.87f;
+			colorSeleccionInicio[2] = 0.02f;
+			break;
+		}
+		case Azul: {
+			colorSeleccionInicio[0] = 0.20f;
+			colorSeleccionInicio[1] = 0.36f;
+			colorSeleccionInicio[2] = 0.83f;
+			break;
+		}
+		case Rojo: 
+		default: {
+			colorSeleccionInicio[0] = 0.92f;
+			colorSeleccionInicio[1] = 0.12f;
+			colorSeleccionInicio[2] = 0.15f;
+			break;
+		}
+	}
+	colorSeleccionFinal[0] = 1.0f;
+	colorSeleccionFinal[1] = 1.0f;
+	colorSeleccionFinal[2] = 1.0f;
+	animFrame[selector] = 0;
+	std::cout << std::fixed << std::setprecision(3) << " color=" << colorSeleccion[2]
+		<< " frame=" << animFrame[selector]
+		<< std::endl;
+}
+
 void Confirmar (){
 	switch(EstadoJuego){ 	
 	    case CantidadJugadores:
@@ -581,7 +624,7 @@ void ClickIzquierda(){
 		//cuantos van a jugar		
 	    case CantidadJugadores:
 	    	NumJugadores--;
-	    	if (NumJugadores < 0){
+	    	if (NumJugadores < 1){
 	    		NumJugadores = 4;
 	    	}
 	    break;	
@@ -729,6 +772,7 @@ void CalcOpciones(){
     	if (Dado == 6){Tiros++;}
 		FichaSeleccionada = OpcPosibles[0];
 		EstadoJuego = SeleccionFicha;
+		SetAnimacionSelector();
 	}
 }
 
