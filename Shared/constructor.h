@@ -1,6 +1,11 @@
 void ConstructL(){
     ConvertirTexData(objTexdataDado, objTexdataDadoF, 248 * 2);
 
+    //esto arregla las fichas. sus coordenadas estaban mal
+    for (int i=0; i<145; i++){
+        objVertexdataFicha[i*3+1] += 5000;
+    }
+
 	for(int i=0; i<4; i++){
 		Equipos[i].termino = false;
 		Equipos[i].puesto = 0;

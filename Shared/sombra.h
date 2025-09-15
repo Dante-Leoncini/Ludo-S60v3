@@ -5,10 +5,10 @@
 
 /** Vertices for the Sombra object. */
 static const GLshort objVertexdataSombra[4 * 3]={
-    -166, -5000, 168,
-    525, -5000, 166,
-    -166, -5000, -523,
-    525, -5000, -523
+    -166, 0, 168,
+    525, 0, 166,
+    -166, 0, -523,
+    525, 0, -523
 };
 
 /* Define normals for the cube */

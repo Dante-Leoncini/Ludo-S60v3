@@ -5,10 +5,10 @@
 
 /** Vertices for the Seleccion object. */
 static const GLshort objVertexdataSeleccion[4 * 3]={
-    -345, -5000, 346,
-    345, -5000, 344,
-    -345, -5000, -345,
-    345, -5000, -345
+    -345, 0, 346,
+    345, 0, 344,
+    -345, 0, -345,
+    345, 0, -345
 };
 
 /* Define normals for the cube */

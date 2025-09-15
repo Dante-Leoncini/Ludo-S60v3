@@ -3,10 +3,30 @@
 #include <chrono>
 
 //variables de SDL2
+SDL_Window* window = nullptr;
 SDL_GameController* controller = nullptr;
+float axisState[6] = {0.0f};
 
-// Solo para PC
-float angle = 55.0f;
+//camara
+int cameraDistance = 270;
+GLfloat posX = 0.0f;
+GLfloat posY = 100.0f;
+GLfloat posZ = 0.0f;
+GLfloat rotX = 0.0f;
+GLfloat rotY = 45.0;
+GLfloat PivotX = 0.0f;
+GLfloat PivotY = 0.0f;
+GLfloat PivotZ = 0.0f;
+//float angle = 55.0f;
+
+void ResetCamara(){
+	posX = 0.0f;
+	posY = 0.0f;
+	posZ = 0.0f;
+	PivotX = 0.0f;
+	PivotY = 0.0f;
+	PivotZ = 0.0f;
+}
 
 #ifndef PI
 #define PI 3.14159265358979323846
@@ -45,13 +65,87 @@ static const GLfloat light_pos[] = { -5000.0f, 5000.0f, 5000.0f, 1.0f };
 static const GLfloat light_diffuse[] = { 1.0f, 1.0f, 1.0f, 1.0f };
 static const GLfloat light_specular[] = { 1.0f, 1.0f, 1.0f, 1.0f };
 
+struct Config {
+    bool fullscreen = false;
+    int width = 800;
+    int height = 600;
+	int displayIndex = 0; // monitor 1
+};
+Config cfg;
+
+//precalculos
+bool recalcularCamara = true;
+float radY = 0.0f;
+float radX = 0.0f;
+
+float factor = 30.0f;
+
+float cosX = 0.0f;
+float sinX = 0.0f;
+float cosY = 0.0f;
+float sinY = 0.0f;
+
+//mouse
+bool middleMouseDown = false;
+int lastMouseX, lastMouseY;
+int dx = 0;
+int dy = 0;
+
+void CheckWarpMouseInWindow(int mx, int my){
+    bool warped = false;
+	dx = mx - lastMouseX;
+	dy = my - lastMouseY;
+
+    if (mx <= 0) {
+        mx = cfg.width - 2;
+        SDL_WarpMouseInWindow(window, mx, my);
+        warped = true;
+    }
+    else if (mx >= cfg.width - 1) {
+        mx = 1;
+        SDL_WarpMouseInWindow(window, mx, my);
+        warped = true;
+    }
+
+    // --- wrap vertical ---
+    if (my <= 0) {
+        my = cfg.height - 2;
+        SDL_WarpMouseInWindow(window, mx, my);
+        warped = true;
+    }
+    else if (my >= cfg.height - 1) {
+        my = 1;
+        SDL_WarpMouseInWindow(window, mx, my);
+        warped = true;
+    } 
+
+    // Calcular delta solo si no hubo warp
+    if (!warped) {
+        dx = mx - lastMouseX;
+        dy = my - lastMouseY;
+    } else {
+        dx = 0;
+        dy = 0; // ignorar delta falso
+    }
+	
+	// Guardar última posición
+    lastMouseX = mx;
+    lastMouseY = my;
+}
+
+void GuardarMousePos() {
+    SDL_GetMouseState(&lastMouseX, &lastMouseY);
+	/*std::cout << "Mouse guardado en: X=" << lastMouseX 
+              << " Y=" << lastMouseY << std::endl;*/
+}
+
 bool DadoManual = true;
 int Dado = 6;
 int Tiros = 1;
 int NumJugadores = 4;
 int TurnoDe = static_cast<ColoresEquipo>(0);
 int FichaSeleccionada = 0;
-int cameraDistance = 270;
+float test = 0.6f;
 
 int OpcionSeleccionada = 0;
 int CantOpciones = 0;
@@ -302,6 +396,14 @@ void NextPos( int ficha, int movimiento ){
 		SetCasilleroFicha(ficha);
 	}
 	SetTurno();
+}
+
+void Sumar(){
+	test += 0.1f;
+}
+
+void Restar(){
+	test -= 0.1f;
 }
 
 void Confirmar (){

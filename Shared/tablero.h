@@ -20,10 +20,10 @@ static const GLubyte planeTriangles[2 * 3] = {
 
 /** Vertices for the Model object. */
 static const GLshort objVertexdataModel[4 * 3]={
-    3750, -5000, -3750,
-    3750, -5000, 3750,
-    -3750, -5000, -3750,
-    -3750, -5000, 3750
+    3750, 0, -3750,
+    3750, 0, 3750,
+    -3750, 0, -3750,
+    -3750, 0, 3750
 };
 
 /* Define normals for the cube */

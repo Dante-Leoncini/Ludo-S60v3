@@ -3,7 +3,7 @@
 #define objFacesFicha       272
 
 /** Vertices for the Ficha object. */
-static const GLshort objVertexdataFicha[145 * 3]={
+GLshort objVertexdataFicha[145 * 3]={
     0, -5000, -165,
     -116, -5000, -116,
     -165, -5000, 0,

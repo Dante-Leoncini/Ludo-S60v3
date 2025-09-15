@@ -1,10 +1,28 @@
+inline float FIXED_TO_FLOAT(GLfixed x) {
+    return static_cast<float>(x) / 65536.0f; // porque Q16.16
+}
+
+int EtapaRender = 5;
+void DebugRender(int valor){
+	EtapaRender +=valor;
+	if (EtapaRender < 0){
+		EtapaRender = 0;
+	}	
+	if (EtapaRender > 5){
+		EtapaRender = 5;
+	}	
+    std::cout << "EtapaRender: " << EtapaRender << std::endl;
+}
+
 // --- Función para dibujar la ficha ---
 void Render() {    
-    glPushMatrix();
+    glLoadIdentity();
 
-    // Rotación
-    glTranslatef( 0.0f, 3500.0f, 3000.0f );
-	//glTranslatef( 0, 55*100, -cameraDistance+170*100);
+	glTranslatef( posX, posZ, -cameraDistance+posY );
+	glRotatef(rotY, 1, 0, 0); //angulo, X Y Z
+	glRotatef(rotX, 0, 1, 0); //angulo, X Y Z
+	glScalef(1024.0f / 65536.0f, 1024.0f / 65536.0f, 1024.0f / 65536.0f);
+	glTranslatef( PivotX, PivotZ, PivotY);
 
 	if (temblando){
 		glTranslatef(temblandoAnim[temblandoFrame][0], temblandoAnim[temblandoFrame][2], temblandoAnim[temblandoFrame][1]);		
@@ -14,7 +32,6 @@ void Render() {
 			temblandoFrame = 0;			
 		}
 	}
-    glRotatef(angle, 1.0f, 0.0f, 0.0f);
 
 	if (TurnoDe == Verde){
 	    glClearColor( 0.01, 0.63, 0.29, 1.0 );		
@@ -32,6 +49,8 @@ void Render() {
     // Limpiar pantalla
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+	if (EtapaRender < 1){return;}
+
 	//dibujamos el tablero
     glEnable(GL_TEXTURE_2D);
 	glDisable(GL_LIGHTING); // No sombrear
@@ -43,9 +62,11 @@ void Render() {
     glVertexPointer(3, GL_SHORT, 0, objVertexdataModel);
     glNormalPointer(GL_BYTE, 0, objNormaldataModel);
     glTexCoordPointer(2, GL_FLOAT, 0, objTexdataModelF);
-	glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, objDiffuseWhite);		
+	glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, objDiffuseWhite);
 
     glDrawElements(GL_TRIANGLES, objFacesModel * 3, GL_UNSIGNED_SHORT, objFacedataModel);
+
+	if (EtapaRender < 2){return;}
 
     //sombras
 	glDisable( GL_DEPTH_TEST ); //se quita el zbuffer
@@ -63,27 +84,30 @@ void Render() {
 			if (casilleros[Fichas[i].casillero].visitantes > 9){
 			    glScalef(0.5f,0.5f,0.5f);	
 				glTranslatef( PosHabitantesDieciseis[Fichas[i].IndiceHabitante][0],
-						      0,//-5000, 
+						      0,
 						      PosHabitantesDieciseis[Fichas[i].IndiceHabitante][1]);	
 				
 			}
 			else if (casilleros[Fichas[i].casillero].visitantes > 4){
 			    glScalef(0.5f,0.5f,0.5f);	
 				glTranslatef( PosHabitantesNueve[Fichas[i].IndiceHabitante][0],
-						      0,//-5000, 
+						      0,
 						      PosHabitantesNueve[Fichas[i].IndiceHabitante][1]);	
 				
 			}
 			else if (casilleros[Fichas[i].casillero].visitantes > 1){
 			    glScalef(0.6f,0.6f,0.6f);	
 				glTranslatef( PosHabitantesCuatro[Fichas[i].IndiceHabitante][0],
-						      0,//-3200, 
+						      0,
 						      PosHabitantesCuatro[Fichas[i].IndiceHabitante][1]);					
 			}	
 		}
+		glRotatef(rotX, 0, -1, 0); //para simular que mira hacia la luz
 		glDrawElements( GL_TRIANGLES, objFacesSombra * 3, GL_UNSIGNED_SHORT, objFacedataSombra );
 		glPopMatrix(); //reinicia la matrix a donde se guardo
 	}
+
+	if (EtapaRender < 3){return;}
 	
 	//Seleccionado
 	if (EstadoJuego == SeleccionFicha){
@@ -104,6 +128,8 @@ void Render() {
 		glDrawElements( GL_TRIANGLES, objFacesSombra * 3, GL_UNSIGNED_SHORT, objFacedataSeleccion );
 		glPopMatrix(); //reinicia la matrix a donde se guardo	
 	}
+
+	if (EtapaRender < 4){return;}
 
     glDisableClientState(GL_TEXTURE_COORD_ARRAY);
 	
@@ -147,33 +173,34 @@ void Render() {
 			int ficha = e*4+i;
 			SetPos(ficha, false);	//lo dibuja en su posicion y reinicia la matrix	
 			//esto es cuando hay varias ficahs en un mismo casillero
-			if (Fichas[ficha].vivo && !Fichas[ficha].gano){		
+			if (Fichas[ficha].vivo && !Fichas[ficha].gano){	
 				if (casilleros[Fichas[ficha].casillero].visitantes > 9){
-				    glScalef(0.5f,0.5f,0.5f);	
+					glScalef(0.5f,0.5f, 0.5f);		
 					glTranslatef( PosHabitantesDieciseis[Fichas[ficha].IndiceHabitante][0],
-							      0, //-5000, 
+							      0,
 							      PosHabitantesDieciseis[Fichas[ficha].IndiceHabitante][1]);	
 					
 				}
 				else if (casilleros[Fichas[ficha].casillero].visitantes > 4){
-				    glScalef(0.5f,0.5f,0.5f);	
+					glScalef(0.5f,0.5f, 0.5f);		
 					glTranslatef( PosHabitantesNueve[Fichas[ficha].IndiceHabitante][0],
-							      0, //-5000, 
+							      0,
 							      PosHabitantesNueve[Fichas[ficha].IndiceHabitante][1]);	
 					
 				}
 				else if (casilleros[Fichas[ficha].casillero].visitantes > 1){
-				    glScalef(0.6f,0.6f,0.6f);	
+					glScalef(0.6f,0.6f, 0.6f);		
 					glTranslatef( PosHabitantesCuatro[Fichas[ficha].IndiceHabitante][0],
-							      0, //-3200, 
+							      0,
 							      PosHabitantesCuatro[Fichas[ficha].IndiceHabitante][1]);	
-					
 				}			    
 			}
 			glDrawElements( GL_TRIANGLES, objFacesFicha * 3, GL_UNSIGNED_SHORT, objFacedataFicha );
 			glPopMatrix(); //reinicia la matrix a donde se guardo
 		}
 	}
+
+	if (EtapaRender < 5){return;}
 	
 	//dado
     glEnableClientState(GL_TEXTURE_COORD_ARRAY);
@@ -200,7 +227,6 @@ void Render() {
 	}
 
 	//reset pos rot
-	glTranslatef(0, -4750, 0); //x, z, y
 	glTranslatef(animacionPos[animacionPosFrame][0]+posDado[TurnoDe][0], 
 			     animacionPos[animacionPosFrame][2], 
 			     animacionPos[animacionPosFrame][1]+posDado[TurnoDe][1]); //x, z, y
@@ -220,6 +246,4 @@ void Render() {
 		CalcOpciones();
 	}
     glDisableClientState(GL_TEXTURE_COORD_ARRAY);
-
-    glPopMatrix();             // Restaurar matriz
 }
