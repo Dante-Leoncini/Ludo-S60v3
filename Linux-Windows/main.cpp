@@ -138,10 +138,14 @@ int main(int argc, char* argv[]) {
         std::cerr << "Error cargando dice-texture.jpg" << std::endl;
         return -1;
     }
-    if (!LoadTexture("../Shared/sombra.png", texSombra)) { 
-        std::cerr << "Error cargando sombra.png" << std::endl;
+    if (!LoadTexture("../Shared/sombra_HD.png", texSombra)) { 
+        std::cerr << "Error cargando sombra_HD.png" << std::endl;
         return -1;
     }
+    /*if (!LoadTexture("../Shared/sombra.png", texSombra)) { 
+        std::cerr << "Error cargando sombra.png" << std::endl;
+        return -1;
+    }*/	
     if (!LoadTexture("../Shared/seleccion.png", texSeleccion)) {
         std::cerr << "Error cargando seleccion.png" << std::endl;
         return -1;
@@ -186,6 +190,12 @@ int main(int argc, char* argv[]) {
 					// si querés, agregá más teclas aquí
 					case SDLK_ESCAPE:  // Esc para salir rápido
 						running = false;
+						break;
+					case SDLK_KP_PLUS:  // Tecla + del numpad
+						DebugRender(1); // suma al EtapaRender
+						break;
+					case SDLK_KP_MINUS: // Tecla - del numpad
+						DebugRender(-1); // resta al EtapaRender
 						break;
 				}
 			}
