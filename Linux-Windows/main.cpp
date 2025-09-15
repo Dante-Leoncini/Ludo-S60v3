@@ -146,8 +146,12 @@ int main(int argc, char* argv[]) {
         std::cerr << "Error cargando sombra.png" << std::endl;
         return -1;
     }*/	
-    if (!LoadTexture("../Shared/seleccion.png", texSeleccion)) {
+    /*if (!LoadTexture("../Shared/seleccion.png", texSeleccion)) {
         std::cerr << "Error cargando seleccion.png" << std::endl;
+        return -1;
+    }*/
+    if (!LoadTexture("../Shared/seleccion_HD.png", texSeleccion)) {
+        std::cerr << "Error cargando seleccion_HD.png" << std::endl;
         return -1;
     }
 
