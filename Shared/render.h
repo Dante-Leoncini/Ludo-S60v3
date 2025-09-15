@@ -11,11 +11,32 @@ void DebugRender(int valor){
 	if (EtapaRender > 5){
 		EtapaRender = 5;
 	}	
-    std::cout << "EtapaRender: " << EtapaRender << std::endl;
+    //std::cout << "EtapaRender: " << EtapaRender << std::endl;
+}
+
+void CalcularAnimaciones(){
+    for (int i = 0; i < NUM_ANIMACIONES; i++) {        
+        if (animFrame[i] > 100) {
+            animFrame[i] = 100;
+        }
+		// Solo hacemos la transición para la animación del fondo
+        if (i == fondo && animFrame[i] < 100) {
+			animFrame[i]+=2;
+            for (int c = 0; c < 3; c++) {
+                // Diferencia entre color objetivo y color anterior
+                int delta = static_cast<int>((colorFondoTransicion[c] - colorFondoAnterior[c]) * 1000.0f); // escala temporal para int
+                // Valor interpolado usando tu función Animacion
+                int val = Animacion(delta, animFrame[i], easeInOut);
+                // Reconstruir el valor float
+                colorFondo[c] = colorFondoAnterior[c] + val / 1000.0f;
+            }
+        }
+    }
 }
 
 // --- Función para dibujar la ficha ---
-void Render() {    
+void Render() {   
+	CalcularAnimaciones(); 
     glLoadIdentity();
 
 	glTranslatef( posX, posZ, -cameraDistance+posY );
@@ -33,7 +54,7 @@ void Render() {
 		}
 	}
 
-	if (TurnoDe == Verde){
+	/*if (TurnoDe == Verde){
 	    glClearColor( 0.01, 0.63, 0.29, 1.0 );		
 	}
 	else if (TurnoDe == Amarillo){
@@ -44,7 +65,8 @@ void Render() {
 	}	
 	else if (TurnoDe == Rojo){	
 	    glClearColor( 0.92, 0.12, 0.15, 1.0 );	
-	}
+	}*/
+	glClearColor( colorFondo[0], colorFondo[1], colorFondo[2], colorFondo[3] );	
 
     // Limpiar pantalla
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -102,6 +124,7 @@ void Render() {
 						      PosHabitantesCuatro[Fichas[i].IndiceHabitante][1]);					
 			}	
 		}
+		glColor4f(1.0f, 1.0f, 1.0f, OpacidadSombra); 
 		glRotatef(rotX, 0, -1, 0); //para simular que mira hacia la luz
 		glDrawElements( GL_TRIANGLES, objFacesSombra * 3, GL_UNSIGNED_SHORT, objFacedataSombra );
 		glPopMatrix(); //reinicia la matrix a donde se guardo
@@ -196,6 +219,7 @@ void Render() {
 				}			    
 			}
 			glDrawElements( GL_TRIANGLES, objFacesFicha * 3, GL_UNSIGNED_SHORT, objFacedataFicha );
+			glColor4f(1.0f, 1.0f, 1.0f, 1.0f); 
 			glPopMatrix(); //reinicia la matrix a donde se guardo
 		}
 	}

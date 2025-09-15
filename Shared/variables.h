@@ -16,16 +16,16 @@ GLfloat rotX = 0.0f;
 GLfloat rotY = 45.0;
 GLfloat PivotX = 0.0f;
 GLfloat PivotY = 0.0f;
-GLfloat PivotZ = 0.0f;
+GLfloat PivotZ = 1000.0f;
 //float angle = 55.0f;
 
 void ResetCamara(){
 	posX = 0.0f;
-	posY = 0.0f;
+	posY = 100.0f;
 	posZ = 0.0f;
 	PivotX = 0.0f;
 	PivotY = 0.0f;
-	PivotZ = 0.0f;
+	PivotZ = 1000.0f;
 }
 
 #ifndef PI
@@ -37,9 +37,16 @@ GLuint texTablero, texDado, texSombra, texSeleccion;
 //parametros del juego
 typedef enum { Verde, Amarillo, Azul, Rojo } ColoresEquipo;
 typedef enum { linear, easeIn, easeOut, easeInOut, RisingFalling } Transition;
-typedef enum { CantidadJugadores, ModoDado, SeleccionDado, DadoLanzado, SeleccionFicha, AnimacionFicha } EstadoLudo;
+typedef enum { CantidadJugadores, ModoDado, SeleccionDado, DadoLanzado, SeleccionFicha, AnimacionFicha } Estados;
 
-EstadoLudo EstadoJuego = CantidadJugadores;
+Estados EstadoJuego = CantidadJugadores;
+
+enum Frames {
+    fondo
+};
+
+int NUM_ANIMACIONES = 1;
+int animFrame[] = {0};
 
 #define MATERIAL_MAX 1
 #define MATERIALCOLOR(r, g, b, a)     \
@@ -60,6 +67,10 @@ static const GLfloat objAmbient[4]  = { MATERIALCOLOR(0.4, 0.4, 0.4, 1.0) };
 //Specular Basico
 static const GLfloat objSpecular[4] = { MATERIALCOLOR(1.0, 1.0, 1.0, 1.0) };
 
+GLfloat colorFondo[4] = { 0.01, 0.63, 0.29, 1.0 };
+GLfloat colorFondoAnterior[4] = { 0.0, 0.0, 0.0, 1.0 };
+GLfloat colorFondoTransicion[4] = { 0.01, 0.63, 0.29, 1.0 };
+
 // Luz blanca desde arriba/delante
 static const GLfloat light_pos[] = { -5000.0f, 5000.0f, 5000.0f, 1.0f };
 static const GLfloat light_diffuse[] = { 1.0f, 1.0f, 1.0f, 1.0f };
@@ -77,6 +88,7 @@ Config cfg;
 bool recalcularCamara = true;
 float radY = 0.0f;
 float radX = 0.0f;
+float radXsombra = 0.0f;
 
 float factor = 30.0f;
 
@@ -84,6 +96,7 @@ float cosX = 0.0f;
 float sinX = 0.0f;
 float cosY = 0.0f;
 float sinY = 0.0f;
+float OpacidadSombra = 1.0f;
 
 //mouse
 bool middleMouseDown = false;
@@ -139,7 +152,7 @@ void GuardarMousePos() {
               << " Y=" << lastMouseY << std::endl;*/
 }
 
-bool DadoManual = true;
+bool DadoManual = false;
 int Dado = 6;
 int Tiros = 1;
 int NumJugadores = 4;
@@ -252,10 +265,12 @@ void SetPos( int ficha, bool sombra ){
     //	glTranslatef(Fichas[ficha].posX, 0, Fichas[ficha].posY);
 	//}
 	if (Fichas[ficha].movimiento){
-		Fichas[ficha].AnimFrame+=2;
-		if (Fichas[ficha].AnimFrame >= 100){
-			Fichas[ficha].movimiento = false;
-			Fichas[ficha].AnimFrame = 100;			
+		if (!sombra){
+			Fichas[ficha].AnimFrame+=4;
+			if (Fichas[ficha].AnimFrame >= 100){
+				Fichas[ficha].movimiento = false;
+				Fichas[ficha].AnimFrame = 100;			
+			}
 		}
 		int AntX = Fichas[ficha].posXanterior;
 		int AntY = Fichas[ficha].posYanterior;
@@ -264,8 +279,21 @@ void SetPos( int ficha, bool sombra ){
 		int newX = AntX+Animacion(PostX-AntX,Fichas[ficha].AnimFrame,easeInOut);
 		int newY = AntY+Animacion(PostY-AntY,Fichas[ficha].AnimFrame,easeInOut);
 		if (sombra){
-			glTranslatef(newX+Animacion(400,Fichas[ficha].AnimFrame,RisingFalling), 0, 
-					     newY-Animacion(400,Fichas[ficha].AnimFrame,RisingFalling));			
+			float shadowOffset = Animacion(400, Fichas[ficha].AnimFrame, RisingFalling);
+			float dx = shadowOffset * cos(radXsombra) * 3;
+			float dz = shadowOffset * sin(radXsombra) * 3;
+
+			// Calculamos la animación de la sombra
+			float sombraAnim = Animacion(400, Fichas[ficha].AnimFrame, RisingFalling); // 0..400
+			// Normalizamos a rango 0..1
+			float alpha = 1.0f - sombraAnim / 600.0f; // 1 → 0.1
+			if (alpha < 0.1f) alpha = 0.1f;   // límite inferior
+			if (alpha > 1.0f) alpha = 1.0f;   // límite superior
+			OpacidadSombra = alpha;
+
+			glTranslatef(newX + dx, 0, newY + dz);
+			/*glTranslatef(newX+Animacion(400,Fichas[ficha].AnimFrame,RisingFalling), 0, 
+					     newY-Animacion(400,Fichas[ficha].AnimFrame,RisingFalling));*/			
 		}
 		else {
 			glTranslatef(newX, Animacion(600,Fichas[ficha].AnimFrame,RisingFalling), newY);
@@ -273,6 +301,7 @@ void SetPos( int ficha, bool sombra ){
 	}
 	else {
 		glTranslatef(Fichas[ficha].posX, 0, Fichas[ficha].posY);
+		OpacidadSombra = 1.0f;
 	}
 }
 
@@ -341,6 +370,36 @@ void SetCasilleroFicha( int ficha ){
 	}
 }
 
+void CambiarColorFondo(){
+	animFrame[fondo] = 0;
+	colorFondoAnterior[0] = colorFondo[0];
+	colorFondoAnterior[1] = colorFondo[1];
+	colorFondoAnterior[2] = colorFondo[2];
+
+	switch (TurnoDe) {
+		case Verde:
+			colorFondoTransicion[0] = 0.01f;
+			colorFondoTransicion[1] = 0.63f;
+			colorFondoTransicion[2] = 0.29f;
+			break;
+		case Amarillo:
+			colorFondoTransicion[0] = 1.0f;
+			colorFondoTransicion[1] = 0.87f;
+			colorFondoTransicion[2] = 0.02f;
+			break;
+		case Azul:
+			colorFondoTransicion[0] = 0.20f;
+			colorFondoTransicion[1] = 0.36f;
+			colorFondoTransicion[2] = 0.83f;
+			break;
+		case Rojo:
+			colorFondoTransicion[0] = 0.92f;
+			colorFondoTransicion[1] = 0.12f;
+			colorFondoTransicion[2] = 0.15f;
+			break;
+	}
+}
+
 void SetTurno(){
 	Tiros--;
 	EstadoJuego = SeleccionDado;
@@ -353,6 +412,9 @@ void SetTurno(){
 			else{
 				TurnoDe = static_cast<ColoresEquipo>(TurnoDe+1);
 			}
+			//Arranca animacion que cambia el color del fondo
+			CambiarColorFondo();
+
 			//si el equipo aun no gano. queda seleccionado
 			if (!Equipos[TurnoDe].termino){
 				break;
@@ -398,19 +460,12 @@ void NextPos( int ficha, int movimiento ){
 	SetTurno();
 }
 
-void Sumar(){
-	test += 0.1f;
-}
-
-void Restar(){
-	test -= 0.1f;
-}
-
 void Confirmar (){
 	switch(EstadoJuego){ 	
 	    case CantidadJugadores:
 	    	//confirma la cantidad de jugadores
-	    	EstadoJuego = ModoDado;
+	    	EstadoJuego = SeleccionDado;
+	    	//EstadoJuego = ModoDado;
 		break;	
 	    case ModoDado:
 	    	//confirma si el dado es Manual o al azar

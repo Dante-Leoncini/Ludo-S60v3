@@ -208,7 +208,7 @@ int main(int argc, char* argv[]) {
                     //case SDL_CONTROLLER_BUTTON_X: Restar(); break;
                     case SDL_CONTROLLER_BUTTON_DPAD_RIGHT: ClickDerecha(); break;
                     case SDL_CONTROLLER_BUTTON_DPAD_LEFT:  ClickIzquierda(); break;
-                    case SDL_CONTROLLER_BUTTON_B: running = false; break;
+                    //case SDL_CONTROLLER_BUTTON_B: running = false; break;
                 }
             }
 			else if (e.type == SDL_CONTROLLERAXISMOTION) {
@@ -271,6 +271,7 @@ int main(int argc, char* argv[]) {
 			//precalculos
 			radY = rotY * M_PI / 180.0f; // Yaw
 			radX = rotX * M_PI / 180.0f; // Pitch
+			radXsombra = rotX * M_PI / 180.0f - 45.0f; // precalculo de sombra
 
 			cosX = cos(radX);
 			sinX = sin(radX);
@@ -284,10 +285,37 @@ int main(int argc, char* argv[]) {
 		PivotX += axisState[SDL_CONTROLLER_AXIS_LEFTX] * factor * cosX - axisState[SDL_CONTROLLER_AXIS_LEFTY] * factor * sinY * sinX;
 		PivotY += axisState[SDL_CONTROLLER_AXIS_LEFTX] * factor * sinX + axisState[SDL_CONTROLLER_AXIS_LEFTY] * factor * sinY * cosX;
 
+		//std::cout << "PivotX: " << PivotX << " PivotY: " << PivotY << " PivotZ: " << PivotZ << std::endl;
 		//std::cout << "rotY: " << rotY << std::endl;
 
 		posY   += (axisState[SDL_CONTROLLER_AXIS_TRIGGERRIGHT] - 
 				axisState[SDL_CONTROLLER_AXIS_TRIGGERLEFT]) * 10.0f;
+
+		//limita el zoom y la posicion de la camara
+		if (posY > 223){
+			posY = 223;
+		}
+		if (posY < -6){
+			posY = -6;
+		}
+		if (PivotX > 2500){
+			PivotX = 2500;
+		}
+		if (PivotX < -2500){
+			PivotX = -2500;
+		}
+		if (PivotY > 2500){
+			PivotY = 2500;
+		}
+		if (PivotY < -2500){
+			PivotY = -2500;
+		}
+		if (PivotZ > 1000){
+			PivotZ = 1000;
+		}
+		if (PivotZ < -3000){
+			PivotZ = -3000;
+		}
 
 		//test   += (axisState[SDL_CONTROLLER_AXIS_TRIGGERRIGHT] - 
 		//		axisState[SDL_CONTROLLER_AXIS_TRIGGERLEFT]) * 0.5f;
