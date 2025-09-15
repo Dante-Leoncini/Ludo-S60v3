@@ -46,7 +46,7 @@ void Render() {
 	glTranslatef( PivotX, PivotZ, PivotY);
 
 	if (temblando){
-		glTranslatef(temblandoAnim[temblandoFrame][0], temblandoAnim[temblandoFrame][2], temblandoAnim[temblandoFrame][1]);		
+		glTranslatef(temblandoAnim[temblandoFrame][0]*100, temblandoAnim[temblandoFrame][2]*100, temblandoAnim[temblandoFrame][1]*100);		
 		temblandoFrame++;
 		if (temblandoFrame > 9){
 			temblando = false;
@@ -54,18 +54,6 @@ void Render() {
 		}
 	}
 
-	/*if (TurnoDe == Verde){
-	    glClearColor( 0.01, 0.63, 0.29, 1.0 );		
-	}
-	else if (TurnoDe == Amarillo){
-	    glClearColor( 1.0, 0.87, 0.02, 1.0 );		
-	}	
-	else if (TurnoDe == Azul){
-	    glClearColor( 0.20, 0.36, 0.83, 1.0 );		
-	}	
-	else if (TurnoDe == Rojo){	
-	    glClearColor( 0.92, 0.12, 0.15, 1.0 );	
-	}*/
 	glClearColor( colorFondo[0], colorFondo[1], colorFondo[2], colorFondo[3] );	
 
     // Limpiar pantalla
@@ -99,6 +87,10 @@ void Render() {
     glTexCoordPointer(2, GL_FLOAT, 0, objTexdataSombraF);
 	glNormalPointer( GL_BYTE, 0, objNormaldataSombra ); //selecciona las normales
 	
+	// Evitar que la textura se repita y que haya sangrado
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+
 	for(int i=0; i < NumJugadores*4; i++){
 		glPushMatrix(); //guarda la matrix
 		SetPos(i, true);
