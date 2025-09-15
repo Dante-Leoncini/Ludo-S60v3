@@ -2,6 +2,9 @@
 #include <random>
 #include <chrono>
 
+//variables de SDL2
+SDL_GameController* controller = nullptr;
+
 // Solo para PC
 float angle = 55.0f;
 
