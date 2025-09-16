@@ -1,9 +1,7 @@
-# Ludo para Symbian S60v3, s60v5 y Symbian Belle
-Ludo creado para Symbian con opcion de jugar de a 2 a 4 jugadores.
-Originalmente lo hice para jugar con mis amigos en un cumpleaños y aprender como programar en OpenGL ES 1.1.
-Fue el primer proyecto para s60v3 que hice. y que aprobechaba la aceleracion grafica del Nokia N95 (aunque tambien funciona en otros modelos)
+# ¡Tuludo!
+Tuludo es un juego de Ludo multiplataforma y de código abierto, creado originalmente para Symbian S60v3, que permite jugar con amigos de 2 a 4 jugadores.
 
-Proximamente pienso darle soporte para pantallas tactiles
+Originalmente lo desarrollé para jugar con mis amigos en un cumpleaños y, al mismo tiempo, aprender a programar en OpenGL ES 1.1. Fue mi primer proyecto para Symbian S60v3 y aprovechaba la aceleración gráfica del Nokia N95
 
 # Como se juega
 aun no hay menu. asi que la forma de arrancar el juego es la siguiente

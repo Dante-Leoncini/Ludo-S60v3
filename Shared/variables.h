@@ -33,7 +33,7 @@ void ResetCamara(){
 	PivotZ = 1000.0f;
 }
 
-GLuint texTablero, texDado, texSombra, texSeleccion;
+GLuint texTablero, texDado, texSombra, texSeleccion, texFont;
 
 //parametros del juego
 typedef enum { Verde, Amarillo, Azul, Rojo } ColoresEquipo;
@@ -210,6 +210,19 @@ class Ficha { //clase ficha
 
 //Crea un array de objetos
 Ficha Fichas[16];
+
+class Sprite {
+	public:
+	    GLfloat uvs[8] = {
+			0.0f, 0.0f,
+			1.0f, 0.0f,
+			0.0f, 1.0f,
+			1.0f, 1.0f
+		};
+		GLfloat vertices[8] = { 0,0, 1,0, 0,1, 1,1 };
+};
+
+Sprite sprite;
 
 //clase Equipo. con las propiedades generales del equipo
 class Equipo {

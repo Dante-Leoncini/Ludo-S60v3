@@ -2,16 +2,125 @@ inline float FIXED_TO_FLOAT(GLfixed x) {
     return static_cast<float>(x) / 65536.0f; // porque Q16.16
 }
 
-int EtapaRender = 5;
+int EtapaRender = 6;
 void DebugRender(int valor){
 	EtapaRender +=valor;
 	if (EtapaRender < 0){
 		EtapaRender = 0;
 	}	
-	if (EtapaRender > 5){
-		EtapaRender = 5;
+	if (EtapaRender > 6){
+		EtapaRender = 6;
 	}	
     //std::cout << "EtapaRender: " << EtapaRender << std::endl;
+}
+
+void InitOpenGL(){
+    // Configuración básica de OpenGL
+    glEnable(GL_DEPTH_TEST); // Habilitar z-buffer
+    //glDisable(GL_CULL_FACE); // desactivar culling
+    glMatrixMode(GL_PROJECTION);
+    glLoadIdentity();
+    gluPerspective(45.0,(float)cfg.width/(float)cfg.height, 10.0, 20000.0);
+
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+    // Cámara y transformaciones
+    glMatrixMode(GL_MODELVIEW);
+}
+
+void DibujarSprite(int x, int y, int w, int h) {
+	// Rellenar array global
+    sprite.vertices[0] = (GLfloat)x;
+    sprite.vertices[1] = (GLfloat)y;
+
+    sprite.vertices[2] = (GLfloat)(x + w);
+    sprite.vertices[3] = (GLfloat)y;
+
+    sprite.vertices[4] = (GLfloat)x;
+    sprite.vertices[5] = (GLfloat)(y + h);
+
+    sprite.vertices[6] = (GLfloat)(x + w);
+    sprite.vertices[7] = (GLfloat)(y + h);
+
+    // Dibujar con TRIANGLE_STRIP (dos triángulos)
+    glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+}
+
+void NuevoUV(int texW, int texH, int x, int y, int w, int h) {
+    GLfloat u1 = (GLfloat)x / texW;
+    GLfloat u2 = (GLfloat)(x + w) / texW;
+
+    GLfloat v1 = (GLfloat)y / texH;
+    GLfloat v2 = (GLfloat)(y + h) / texH;
+
+    // top-left
+    sprite.uvs[0] = u1; sprite.uvs[1] = v1;
+    // top-right
+    sprite.uvs[2] = u2; sprite.uvs[3] = v1;
+    // bottom-left
+    sprite.uvs[4] = u1; sprite.uvs[5] = v2;
+    // bottom-right
+    sprite.uvs[6] = u2; sprite.uvs[7] = v2;
+
+    //std::cout << std::fixed << std::setprecision(6)
+    //          << "ancho=" << ancho << std::endl;
+}
+
+void DibujarUI() {
+    // Guardar matrices
+    glMatrixMode(GL_PROJECTION);
+    glLoadIdentity();
+    glOrtho(0, (double)cfg.width, (double)cfg.height, 0, -1, 1);
+
+    glDisable(GL_DEPTH_TEST);
+    glDisable(GL_LIGHTING);
+    glEnable(GL_TEXTURE_2D);
+	//glDisable( GL_BLEND );
+
+    //int texW, texH;
+	glBindTexture(GL_TEXTURE_2D, texFont);
+	/*glGetTexLevelParameteriv(GL_TEXTURE_2D, 0, GL_TEXTURE_WIDTH, &texW);
+	glGetTexLevelParameteriv(GL_TEXTURE_2D, 0, GL_TEXTURE_HEIGHT, &texH);
+	std::cout << "Tex size in GPU: " << texW << "x" << texH << std::endl;*/
+
+	//esto se hace despues del bind de la textura. sino no le afecta
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+
+    glMatrixMode(GL_MODELVIEW);
+    glLoadIdentity();
+
+    glVertexPointer(2, GL_FLOAT, 0, sprite.vertices);
+	NuevoUV(128, 128, 1,1,5,7);
+
+	std::string text = "ABCDEFGHIJKLMNÑOPQRSTUVWXYZ abcdefjhijklmnñopqrstuvwyz 1234567890";
+	int glyphIndex = 0;
+	for (size_t i = 0; i < text.size();) {
+		unsigned char c = text[i];
+
+		std::string letra;
+
+		if (c < 128) {
+			// ASCII normal
+			letra = std::string(1, c);
+			i++;
+		} else {
+			// UTF-8 multibyte (ej: Ñ ocupa 2 bytes: 0xC3 0x91)
+			letra = text.substr(i, 2);
+			i += 2;
+		}
+
+		const GLfloat* uv = font.getUV(letra);
+		glTexCoordPointer(2, GL_FLOAT, 0, uv);
+
+    	//glTexCoordPointer(2, GL_FLOAT, 0, sprite.uvs);
+    	DibujarSprite(5+(glyphIndex*12), 0, 10, 20);
+		glyphIndex++;
+	}
+
+
+	InitOpenGL();
 }
 
 void CalcularAnimaciones(){
@@ -313,5 +422,11 @@ void Render() {
 	else if (EstadoJuego == DadoLanzado){
 		CalcOpciones();
 	}
-    glDisableClientState(GL_TEXTURE_COORD_ARRAY);
+
+	if (EtapaRender < 6){return;}
+
+	DibujarUI();
+
+	//solo reseteo esto si se dibuja la interfaz. sino no hace falta
+	InitOpenGL();
 }

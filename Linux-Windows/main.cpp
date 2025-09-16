@@ -9,6 +9,9 @@
 #include <iostream>
 #include <iomanip>
 
+#include <map>
+#include <string>
+
 #include "../Shared/recorridos.h"
 #include "../Shared/dado.h"
 #include "../Shared/variables.h"
@@ -17,6 +20,7 @@
 #include "../Shared/sombra.h"
 #include "../Shared/seleccion.h"
 #include "../Shared/constructor.h"
+#include "../Shared/font.h"
 #include "../Shared/render.h"
 
 // Función simple para leer el ini
@@ -118,12 +122,7 @@ int main(int argc, char* argv[]) {
 
     SDL_GLContext context = SDL_GL_CreateContext(window);
 
-    // Configuración básica de OpenGL
-    glEnable(GL_DEPTH_TEST); // Habilitar z-buffer
-    //glDisable(GL_CULL_FACE); // desactivar culling
-    glMatrixMode(GL_PROJECTION);
-    glLoadIdentity();
-    gluPerspective(45.0,(float)cfg.width/(float)cfg.height, 10.0, 20000.0);
+	InitOpenGL();
 
     // Cargar textura
     /*if (!LoadTexture("../Shared/tablero.jpg", texTablero)) {
@@ -156,11 +155,13 @@ int main(int argc, char* argv[]) {
         return -1;
     }
 
+    if (!LoadTexture("../Shared/font.png", texFont)) {
+        std::cerr << "Error cargando font.png" << std::endl;
+        return -1;
+    }	
+
     bool running = true;
     SDL_Event e;
-
-    // Cámara y transformaciones
-    glMatrixMode(GL_MODELVIEW);
 
 	glEnable(GL_NORMALIZE);
 	glShadeModel(GL_SMOOTH);
@@ -168,10 +169,7 @@ int main(int argc, char* argv[]) {
     glEnableClientState(GL_VERTEX_ARRAY);
     glEnableClientState(GL_NORMAL_ARRAY);
 
-	//iluminacion
-    glEnable(GL_LIGHTING);
     glEnable(GL_LIGHT0);
-
     glLightfv(GL_LIGHT0, GL_POSITION, light_pos);
     glLightfv(GL_LIGHT0, GL_DIFFUSE, light_diffuse);
     glLightfv(GL_LIGHT0, GL_SPECULAR, light_specular);
@@ -225,7 +223,7 @@ int main(int argc, char* argv[]) {
 			// Botones del mouse
 			else if (e.type == SDL_MOUSEBUTTONDOWN) {
 				if (e.button.button == SDL_BUTTON_LEFT) { 
-					Confirmar();
+					//Confirmar();
 				}
 				else if (e.button.button == SDL_BUTTON_MIDDLE) {  // rueda clic
 					middleMouseDown = true;
@@ -320,6 +318,12 @@ int main(int argc, char* argv[]) {
 		}
 		if (PivotZ < -3000){
 			PivotZ = -3000;
+		}
+		if (rotY > 90){
+			rotY = 90;
+		}
+		if (rotY < 19){
+			rotY = 19;
 		}
 
 		//test   += (axisState[SDL_CONTROLLER_AXIS_TRIGGERRIGHT] - 
