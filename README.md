@@ -13,6 +13,8 @@ despues las reglas son como las de cualquier (o casi cualquier) ludo
 Estoy probando un port multiplataforma de Linux/Symbian
 debido a esto. estoy haciendo una gran reescritura. acomodando las cosas. etc.
 
+ahora Whisk3D es un Submodulo! asi que arreglar cosas como el render, variables, iluminacion, clases, importadores de objetos, o agregar nuevas caracteristicas automaticamente beneficia al resto de proyectos que lo usen
+
 Para compilar en Ubuntu es necesario tener instalado: 
 
 build-essential → incluye g++, make, etc. (herramientas básicas de compilación).
