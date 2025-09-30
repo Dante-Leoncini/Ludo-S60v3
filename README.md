@@ -1,4 +1,4 @@
-# ¡Hiper Ludo!
+# ¡Hiper Mega Ludo!
 Un juego de Ludo multiplataforma y de código abierto, creado originalmente para Symbian S60v3, que permite jugar con amigos de 2 a 4 jugadores.
 
 Originalmente lo desarrollé para jugar con mis amigos en un cumpleaños y, al mismo tiempo, aprender a programar en OpenGL ES 1.1. Fue mi primer proyecto para Symbian S60v3 y aprovechaba la aceleración gráfica del Nokia N95
