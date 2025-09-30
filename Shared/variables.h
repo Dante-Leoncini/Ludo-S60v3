@@ -59,18 +59,18 @@ int animFrame[] = {0, 0};
 
 //Colores de Fichas
 static const GLfloat objDiffuseWhite[4]  = { MATERIALCOLOR(1.0, 1.0, 1.0, 1.0) };
-static const GLfloat objDiffuseRed[4]  = { MATERIALCOLOR(0.92, 0.12, 0.15, 1.0) };
-static const GLfloat objDiffuseGreen[4]  = { MATERIALCOLOR(0.01, 0.63, 0.29, 1.0) };
-static const GLfloat objDiffuseBlue[4]  = { MATERIALCOLOR(0.20, 0.36, 0.83, 1.0) };
-static const GLfloat objDiffuseYellow[4]  = { MATERIALCOLOR(1.0, 0.87, 0.02, 1.0) };
+GLfloat colorEquipo1[4]  = { 0.92, 0.12, 0.15, 1.0 };
+GLfloat colorEquipo2[4]  = { 0.01, 0.63, 0.29, 1.0 };
+GLfloat colorEquipo3[4]  = { 0.20, 0.36, 0.83, 1.0 };
+GLfloat colorEquipo4[4]  = { 1.0, 0.87, 0.02, 1.0 };
+GLfloat colorEquipo5[4]  = { 1.0, 0.87, 0.02, 1.0 };
+GLfloat colorEquipo6[4]  = { 1.0, 0.87, 0.02, 1.0 };
 
+static const GLfloat ambientNeutro[3]  = { 0.0, 0.0, 0.0 };
 static const GLfloat ambientDiffuseRed[3]  = { 0.92*1.5, 0.12*1.5, 0.15*1.5};
 static const GLfloat ambientDiffuseGreen[3]  = { 0.01*1.5, 0.63*1.5, 0.29*1.5};
 static const GLfloat ambientDiffuseBlue[3]  = { 0.20*1.5, 0.36*1.5, 0.83*1.5};
 static const GLfloat ambientDiffuseYellow[3]  = { 1.0*1.5, 0.87*1.5, 0.02*1.5};
-
-
-GLfloat objAmbient[4]  = { 3.0, 3.0, 3.0, 1.0 };
 
 //Specular Basico
 static const GLfloat objSpecular[4] = { MATERIALCOLOR(1.0, 1.0, 1.0, 1.0) };
@@ -511,9 +511,6 @@ void SetAnimacionSelector(){
 	colorSeleccionFinal[1] = 1.0f;
 	colorSeleccionFinal[2] = 1.0f;
 	animFrame[selector] = 0;
-	std::cout << std::fixed << std::setprecision(3) << " color=" << colorSeleccion[2]
-		<< " frame=" << animFrame[selector]
-		<< std::endl;
 }
 
 void Confirmar (){
@@ -580,7 +577,7 @@ void ClickDerecha(){
 	    case CantidadJugadores:
 	    	NumJugadores++;
 	    	if (NumJugadores > 4){
-	    		NumJugadores = 1; //tiene que ser 2 minimo
+	    		NumJugadores = 2; //tiene que ser 2 minimo
 	    	}
 	    break;	
 	    case ModoDado:
@@ -637,7 +634,7 @@ void ClickIzquierda(){
 		//cuantos van a jugar		
 	    case CantidadJugadores:
 	    	NumJugadores--;
-	    	if (NumJugadores < 1){
+	    	if (NumJugadores < 2){
 	    		NumJugadores = 4;
 	    	}
 	    break;	

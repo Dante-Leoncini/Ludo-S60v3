@@ -1,7 +1,3 @@
-inline float FIXED_TO_FLOAT(GLfixed x) {
-    return static_cast<float>(x) / 65536.0f; // porque Q16.16
-}
-
 int EtapaRender = 6;
 void DebugRender(int valor){
 	EtapaRender +=valor;
@@ -94,7 +90,19 @@ void DibujarUI() {
     glVertexPointer(2, GL_FLOAT, 0, sprite.vertices);
 	NuevoUV(128, 128, 1,1,5,7);
 
-	std::string text = "ABCDEFGHIJKLMNÑOPQRSTUVWXYZ abcdefjhijklmnñopqrstuvwyz 1234567890";
+	//std::string text = "ABCDEFGHIJKLMNÑOPQRSTUVWXYZ abcdefghijklmnñopqrstuvwyz 0123456789+-= ()[]{}<>/*:#%!?.,'\"@&$";
+	std::string text = "4 Jugadores";
+
+	if (NumJugadores == 4){
+		text = "4 Jugadores";
+	}
+	else if (NumJugadores == 3){
+		text = "3 Jugadores";
+	}
+	else if (NumJugadores == 2){
+		text = "2 Jugadores";
+	}
+
 	int glyphIndex = 0;
 	for (size_t i = 0; i < text.size();) {
 		unsigned char c = text[i];
@@ -115,7 +123,7 @@ void DibujarUI() {
 		glTexCoordPointer(2, GL_FLOAT, 0, uv);
 
     	//glTexCoordPointer(2, GL_FLOAT, 0, sprite.uvs);
-    	DibujarSprite(5+(glyphIndex*12), 0, 10, 20);
+    	DibujarSprite(5+(glyphIndex*24), 0, 20, 44);
 		glyphIndex++;
 	}
 
@@ -203,7 +211,7 @@ void Render() {
 	if (EtapaRender < 1){return;}
 
 	//dibujamos el tablero
-    glEnable(GL_TEXTURE_2D);
+    /*glEnable(GL_TEXTURE_2D);
 	glDisable(GL_LIGHTING); // No sombrear
 	glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
 
@@ -215,11 +223,28 @@ void Render() {
     glTexCoordPointer(2, GL_FLOAT, 0, objTexdataModelF);
 	glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, objDiffuseWhite);
 
-    glDrawElements(GL_TRIANGLES, objFacesModel * 3, GL_UNSIGNED_SHORT, objFacedataModel);
+    glDrawElements(GL_TRIANGLES, objFacesModel * 3, GL_UNSIGNED_SHORT, objFacedataModel);*/
+
+    
+
+	//Render de Whisk3D
+	objAmbient[0] = ambientNeutro[0];
+	objAmbient[1] = ambientNeutro[1];
+	objAmbient[2] = ambientNeutro[2];
+	glMaterialfv(   GL_FRONT_AND_BACK, GL_AMBIENT,  objAmbient  );
+	if(Meshes.size() > 0){
+		// Funcion principal para iterar sobre la coleccion
+		for (size_t o = 0; o < Collection.size(); o++) {
+			Object& obj = Objects[Collection[o]];
+			RenderMeshAndChildren(obj, Collection[o]);
+		}
+	}
 
 	if (EtapaRender < 2){return;}
 
     //sombras
+	glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+	glEnable(GL_TEXTURE_2D);
 	glDisable( GL_DEPTH_TEST ); //se quita el zbuffer
 	glEnable( GL_BLEND ); // Enable blending for transparency.
 	glBindTexture(  GL_TEXTURE_2D, texSombra ); //selecciona la textura
@@ -280,12 +305,10 @@ void Render() {
 	}
 
 	if (EtapaRender < 4){return;}
-
-    glDisableClientState(GL_TEXTURE_COORD_ARRAY);
 	
 	//Fichas
-	glEnable(GL_LIGHTING); // No sombrear
-	glEnable( GL_DEPTH_TEST ); //se recupera el zbuffer
+	glEnable( GL_DEPTH_TEST );
+	glEnable(GL_LIGHTING);
 	glDisable( GL_TEXTURE_2D ); //desactiva las texturas
 	glVertexPointer( 3, GL_SHORT, 0, objVertexdataFicha ); //selecciona los vertices
 	glNormalPointer( GL_BYTE, 0, objNormaldataFicha ); //selecciona las normales
@@ -306,26 +329,26 @@ void Render() {
 				objAmbient[0] = ambientDiffuseGreen[0];
 				objAmbient[1] = ambientDiffuseGreen[1];
 				objAmbient[2] = ambientDiffuseGreen[2];
-				glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, objDiffuseGreen);
+				glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, colorEquipo2);
 				break;
 			case Amarillo:
 				objAmbient[0] = ambientDiffuseYellow[0];
 				objAmbient[1] = ambientDiffuseYellow[1];
 				objAmbient[2] = ambientDiffuseYellow[2];
-				glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, objDiffuseYellow);
+				glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, colorEquipo4);
 				break;
 			case Azul:
 				objAmbient[0] = ambientDiffuseBlue[0];
 				objAmbient[1] = ambientDiffuseBlue[1];
 				objAmbient[2] = ambientDiffuseBlue[2];
-				glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, objDiffuseBlue);
+				glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, colorEquipo3);
 				break;
 			case Rojo:
 			default:
 				objAmbient[0] = ambientDiffuseRed[0];
 				objAmbient[1] = ambientDiffuseRed[1];
 				objAmbient[2] = ambientDiffuseRed[2];
-				glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, objDiffuseRed);
+				glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, colorEquipo1);
 				break;
 		}
 		glMaterialfv(   GL_FRONT_AND_BACK, GL_AMBIENT,  objAmbient  );
@@ -379,26 +402,26 @@ void Render() {
 			objAmbient[0] = ambientDiffuseGreen[0];
 			objAmbient[1] = ambientDiffuseGreen[1];
 			objAmbient[2] = ambientDiffuseGreen[2];
-			glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, objDiffuseGreen);
+			glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, colorEquipo2);
 			break;
 		case Amarillo:
 			objAmbient[0] = ambientDiffuseYellow[0];
 			objAmbient[1] = ambientDiffuseYellow[1];
 			objAmbient[2] = ambientDiffuseYellow[2];
-			glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, objDiffuseYellow);
+			glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, colorEquipo4);
 			break;
 		case Azul:
 			objAmbient[0] = ambientDiffuseBlue[0];
 			objAmbient[1] = ambientDiffuseBlue[1];
 			objAmbient[2] = ambientDiffuseBlue[2];
-			glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, objDiffuseBlue);
+			glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, colorEquipo3);
 			break;
 		case Rojo:
 		default:
 			objAmbient[0] = ambientDiffuseRed[0];
 			objAmbient[1] = ambientDiffuseRed[1];
 			objAmbient[2] = ambientDiffuseRed[2];
-			glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, objDiffuseRed);
+			glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, colorEquipo1);
 			break;
 	}
 	glMaterialfv(   GL_FRONT_AND_BACK, GL_AMBIENT,  objAmbient  );

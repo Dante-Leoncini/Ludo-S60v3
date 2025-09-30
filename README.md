@@ -31,3 +31,10 @@ para usar el ejecutable ./ludo
 
 # Windows
 "x86_64-w64-mingw32-g++ main.cpp -o juego.exe -lmingw32 -lSDL2main -lSDL2 -lSDL2_image -lopengl32 -lglu32"
+
+# Creditos y Licencias
+Los modelos 3D de ludo, tablero, texturas, codigo de programacion fueron creados por Dante Demian Leoncini bajo la licencia MIT.
+
+Los siguientes Assets fueron descargados de [OpenGameArt](https://opengameart.org/)
+
+basic_message_boxes: Charles Gabriel (CC-BY 3.0)

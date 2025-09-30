@@ -92,19 +92,19 @@ void CLudo::ConstructL( void ){
 		Fichas[i].IndiceHabitante = 1;
 		if (i < 4){
 			Fichas[i].equipo = Verde; 
-			//Fichas[i].color[4] = MATERIALCOLOR(0.01, 0.63, 0.29, 1.0); //objDiffuseGreen;
+			//Fichas[i].color[4] = MATERIALCOLOR(0.01, 0.63, 0.29, 1.0); //colorEquipo2;
 		}
 		else if (i < 8){
 			Fichas[i].equipo = Amarillo;
-			//Fichas[i].color[4] = MATERIALCOLOR(1.0, 0.87, 0.02, 1.0); //objDiffuseYellow;
+			//Fichas[i].color[4] = MATERIALCOLOR(1.0, 0.87, 0.02, 1.0); //colorEquipo4;
 		}
 		else if (i < 12){
 			Fichas[i].equipo = Azul;
-			//Fichas[i].color[4] = MATERIALCOLOR(0.20, 0.36, 0.83, 1.0); //objDiffuseBlue;
+			//Fichas[i].color[4] = MATERIALCOLOR(0.20, 0.36, 0.83, 1.0); //colorEquipo3;
 		}
 		else {
 			Fichas[i].equipo = Rojo;
-			//Fichas[i].color[4] = MATERIALCOLOR(0.92, 0.12, 0.15, 1.0); //objDiffuseRed;
+			//Fichas[i].color[4] = MATERIALCOLOR(0.92, 0.12, 0.15, 1.0); //colorEquipo1;
 		}
 		Fichas[i].posX = posMuertos[i][0];
 		Fichas[i].posY = posMuertos[i][1];
@@ -357,16 +357,16 @@ void CLudo::AppCycle( TInt iFrame ){
 		glBindTexture(  GL_TEXTURE_2D, iSeleccionTextura.iID ); //selecciona la textura	
 		glNormalPointer( GL_BYTE, 0, objNormaldataSeleccion ); //selecciona las normales
 		if (TurnoDe == Verde){
-			glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, objDiffuseGreen);			
+			glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, colorEquipo2);			
 		}
 		else if (TurnoDe == Amarillo){
-			glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, objDiffuseYellow);			
+			glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, colorEquipo4);			
 		}	
 		else if (TurnoDe == Azul){
-			glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, objDiffuseBlue);			
+			glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, colorEquipo3);			
 		}	
 		else if (TurnoDe == Rojo){
-			glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, objDiffuseRed);			
+			glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, colorEquipo1);			
 		}	
 		glTranslatef(Fichas[FichaSeleccionada].posX, 0, Fichas[FichaSeleccionada].posY);
 		//dibuja
@@ -386,16 +386,16 @@ void CLudo::AppCycle( TInt iFrame ){
 	//primero setea el color por equipo
 	for(int e=0; e < NumJugadores; e++){
 		if (e == Verde){
-			glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, objDiffuseGreen);
+			glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, colorEquipo2);
 		}
 		else if (e == Amarillo){
-			glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, objDiffuseYellow);
+			glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, colorEquipo4);
 		}
 		else if (e == Azul){
-			glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, objDiffuseBlue);
+			glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, colorEquipo3);
 		}
 		else {glMaterialfv(
-			GL_FRONT_AND_BACK, GL_DIFFUSE, objDiffuseRed);
+			GL_FRONT_AND_BACK, GL_DIFFUSE, colorEquipo1);
 		}
 		//dibuja las 4 fichas
 		for(int i=0; i < 4; i++){
@@ -438,16 +438,16 @@ void CLudo::AppCycle( TInt iFrame ){
     glTexCoordPointer( 2, GL_BYTE, 0, objTexdataDado );
 	//if (EstadoJuego == SeleccionFicha || EstadoJuego == DadoLanzado){
 		if (TurnoDe == Verde){
-			glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, objDiffuseGreen);			
+			glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, colorEquipo2);			
 		}
 		else if (TurnoDe == Amarillo){
-			glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, objDiffuseYellow);			
+			glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, colorEquipo4);			
 		}	
 		else if (TurnoDe == Azul){
-			glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, objDiffuseBlue);			
+			glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, colorEquipo3);			
 		}	
 		else if (TurnoDe == Rojo){
-			glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, objDiffuseRed);			
+			glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, colorEquipo1);			
 		}
 	//}
 	//else {

@@ -3,6 +3,8 @@
 #include <GL/gl.h>
 #include <GL/glu.h>
 
+#include <filesystem>
+#include <vector>
 #include <fstream>
 #include <string>
 #include <sstream>
@@ -11,9 +13,15 @@
 
 #include <map>
 #include <string>
+#include <algorithm>
+#include <cstring>
 
 #include "../Shared/recorridos.h"
 #include "../Shared/dado.h"
+#include "../Whisk3D/Shared/clases.h"
+#include "../Whisk3D/Shared/colores.h"
+#include "../Whisk3D/Shared/OpcionesRender.h"
+#include "../Whisk3D/Shared/import_obj.h"
 #include "../Shared/variables.h"
 #include "../Shared/ficha.h"
 #include "../Shared/tablero.h"
@@ -46,36 +54,6 @@ Config loadConfig(const std::string& filename) {
     return cfg;
 }
 
-// --- Cargar textura ---
-bool LoadTexture(const char* filename, GLuint &textureID) {
-    SDL_Surface* surface = IMG_Load(filename);
-    if (!surface) {
-        std::cerr << "Error cargando textura: " << IMG_GetError() << std::endl;
-        return false;
-    }
-
-    glGenTextures(1, &textureID);
-    glBindTexture(GL_TEXTURE_2D, textureID);
-
-    // Configurar filtros
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-
-    // Determinar formato
-    GLenum format = (surface->format->BytesPerPixel == 4) ? GL_RGBA : GL_RGB;
-
-    glTexImage2D(GL_TEXTURE_2D, 0, format, surface->w, surface->h, 0,
-                 format, GL_UNSIGNED_BYTE, surface->pixels);
-
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    gluBuild2DMipmaps(GL_TEXTURE_2D, format, surface->w, surface->h,
-                    format, GL_UNSIGNED_BYTE, surface->pixels);
-
-    SDL_FreeSurface(surface);
-    return true;
-}
-
 int main(int argc, char* argv[]) {
     //constructor symbian, linux y windows
     ConstructL();
@@ -102,7 +80,7 @@ int main(int argc, char* argv[]) {
     SDL_GL_SetAttribute(SDL_GL_MULTISAMPLEBUFFERS, 1);
     SDL_GL_SetAttribute(SDL_GL_MULTISAMPLESAMPLES, 4); // 4x MSAA (puedes probar 8, 16 si tu GPU soporta)
 
-	Config cfg = loadConfig("./configuraciones.ini");
+	Config cfg = loadConfig("./config.ini");
 
     Uint32 windowFlags = SDL_WINDOW_OPENGL | SDL_WINDOW_SHOWN;
 	if (cfg.fullscreen) windowFlags |= SDL_WINDOW_FULLSCREEN_DESKTOP;
@@ -130,10 +108,10 @@ int main(int argc, char* argv[]) {
         return -1;
     }*/
 	//version HD para PC
-    if (!LoadTexture("../Shared/tablero_HD.png", texTablero)) {
+    /*if (!LoadTexture("../Shared/tablero_HD.png", texTablero)) {
         std::cerr << "Error cargando tablero_HD.png" << std::endl;
         return -1;
-    }	
+    }	*/
     if (!LoadTexture("../Shared/dice-texture.jpg", texDado)) {
         std::cerr << "Error cargando dice-texture.jpg" << std::endl;
         return -1;
@@ -159,6 +137,88 @@ int main(int argc, char* argv[]) {
         std::cerr << "Error cargando font.png" << std::endl;
         return -1;
     }	
+
+    //if (!ImportOBJ("../Shared/OBJ_tests/triangulo.obj")) {
+    //if (!ImportOBJ("../Shared/OBJ_tests/cubo_triangulos.obj")) {	
+    //if (!ImportOBJ("../Shared/OBJ_tests/cubo_cuads.obj")) {		
+    //if (!ImportOBJ("../Shared/OBJ_tests/monkey.obj")) {			
+    /*if (!ImportOBJ("../Shared/models/morgan.obj")) {			
+    //if (!ImportOBJ("../Shared/OBJ_tests/objetos.obj")) {		
+        std::cerr << "Error al importar el OBJ\n";
+        return -1;
+    }*/
+    if (!ImportOBJ("../Shared/modelos_basicos/tablero_procedural.obj")) {		
+        std::cerr << "Error al importar el OBJ\n";
+        return -1;
+    }
+
+	int lastIndex = Objects.size() - 1;
+	int baseIndex = Objects.back().Id; // malla del último importado
+	Object base = Objects[lastIndex];
+
+	// Buscar índice del material "Equipo"
+	int equipoId = -1;
+	for (size_t i = 0; i < Materials.size(); i++) {
+		if (Materials[i].name == "Equipo") {
+			equipoId = (int)i;
+			Materials[equipoId].diffuse[0] = colorEquipo1[0];
+			Materials[equipoId].diffuse[1] = colorEquipo1[1];
+			Materials[equipoId].diffuse[2] = colorEquipo1[2];
+			Materials[equipoId].name = "Equipo_rojo";
+			break;
+		}
+	}
+
+	if (equipoId != -1) {
+		// Duplicar 3 veces
+		int azulId = DuplicateMaterial(equipoId);
+		int amarilloId = DuplicateMaterial(equipoId);
+		int verdeId = DuplicateMaterial(equipoId);
+
+		// Cambiar colores difusos
+		if (azulId != -1) {
+			Materials[azulId].diffuse[0] = colorEquipo3[0];
+			Materials[azulId].diffuse[1] = colorEquipo3[1];
+			Materials[azulId].diffuse[2] = colorEquipo3[2]; // azul
+			Materials[azulId].name = "Equipo_azul";
+		}
+		if (amarilloId != -1) {
+			Materials[amarilloId].diffuse[0] = colorEquipo4[0];
+			Materials[amarilloId].diffuse[1] = colorEquipo4[1];
+			Materials[amarilloId].diffuse[2] = colorEquipo4[2]; // amarillo
+			Materials[amarilloId].name = "Equipo_amarillo";
+		}
+		if (verdeId != -1) {
+			Materials[verdeId].diffuse[0] = colorEquipo2[0];
+			Materials[verdeId].diffuse[1] = colorEquipo2[1];
+			Materials[verdeId].diffuse[2] = colorEquipo2[2]; // verde
+			Materials[verdeId].name = "Equipo_verde";
+		}
+
+		// Crear 3 copias y cada una la rota 90 grados en Z
+		for (int i = 1; i <= 3; i++) {
+			Object rotated = base;
+			rotated.rotZ += i * 90.0f;  // 90, 180, 270
+			rotated.name = base.name + "_rot" + std::to_string(i * 90);
+
+			int newMeshId = DuplicateMesh(baseIndex);
+			rotated.Id = newMeshId;
+
+			if (i == 1){
+				Meshes[newMeshId].materialsGroup[0].material = azulId;
+			}
+			else if (i == 2){
+				Meshes[newMeshId].materialsGroup[0].material = amarilloId;
+			}
+			else if (i == 3){
+				Meshes[newMeshId].materialsGroup[0].material = verdeId;
+			}
+
+			Objects.push_back(rotated);
+			Collection.push_back(Objects.size() - 1);
+		}
+
+	}
 
     bool running = true;
     SDL_Event e;
@@ -216,7 +276,7 @@ int main(int argc, char* argv[]) {
             }
 			else if (e.type == SDL_CONTROLLERAXISMOTION) {
 				float value = e.caxis.value / 32767.0f;
-				if (fabs(value) < 0.05f) value = 0.0f; // deadzone
+				if (fabs(value) < 0.30f) value = 0.0f; // deadzone
 
 				axisState[e.caxis.axis] = value; // guardar el valor normalizado
 			}
