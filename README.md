@@ -1,5 +1,5 @@
-# ¡Tuludo!
-Tuludo es un juego de Ludo multiplataforma y de código abierto, creado originalmente para Symbian S60v3, que permite jugar con amigos de 2 a 4 jugadores.
+# ¡Hiper Ludo!
+Un juego de Ludo multiplataforma y de código abierto, creado originalmente para Symbian S60v3, que permite jugar con amigos de 2 a 4 jugadores.
 
 Originalmente lo desarrollé para jugar con mis amigos en un cumpleaños y, al mismo tiempo, aprender a programar en OpenGL ES 1.1. Fue mi primer proyecto para Symbian S60v3 y aprovechaba la aceleración gráfica del Nokia N95
 
@@ -12,6 +12,8 @@ despues las reglas son como las de cualquier (o casi cualquier) ludo
 # Linux
 Estoy probando un port multiplataforma de Linux/Symbian
 debido a esto. estoy haciendo una gran reescritura. acomodando las cosas. etc.
+
+ahora Whisk3D es un Submodulo! asi que arreglar cosas como el render, variables, iluminacion, clases, importadores de objetos, o agregar nuevas caracteristicas automaticamente beneficia al resto de proyectos que lo usen
 
 Para compilar en Ubuntu es necesario tener instalado: 
 
